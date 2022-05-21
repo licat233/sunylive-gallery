@@ -23,6 +23,10 @@ body {
     font-family: "ROBOTO", sans-serif;
 }
 
+.navigationContainer {
+    height: 100vh;
+}
+
 .nav {
     overflow: hidden;
     width: 100%;
@@ -159,6 +163,7 @@ a {
     z-index: 999;
     cursor: pointer;
     overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .nav-container--top-first {
@@ -205,16 +210,23 @@ a {
     font-size: 2vw;
     cursor: pointer;
     min-width: 70px;
+    text-decoration: none;
 }
 
 .nav-tab:hover {
     color: var(--color1);
     font-weight: bold;
-    background: var(--color0);
+    font-size: 2vw;
     -webkit-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     transition: all 0.5s ease;
+}
+
+.nav-tab.active {
+    /* font-size: 2vw; */
+    font-weight: bold;
+    background-color: var(--color0);
 }
 
 .nav-tab-slider {
@@ -291,6 +303,10 @@ a {
     text-shadow: 0 0 0 var(--color0);
     animation: loading 1s ease-in-out infinite alternate;
     -webkit-animation: loading 1s ease-in-out infinite alternate;
+}
+
+.loader_en {
+    margin-bottom: 1rem;
 }
 
 .loader_en span {
@@ -479,4 +495,41 @@ a {
         height: 40px;
         min-height: 40px;
     }
+}
+
+.time-control {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.time-control .ruller {
+    /* position: absolute; */
+    width: 100%;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1px;
+}
+
+.time-control .line {
+    min-width: 1px;
+    max-width: 1px;
+    width: 1px;
+    height: 12px;
+    background-color: var(--color1);
+}
+
+.time-control .line:nth-child(9n+1) {
+    height: 20px;
+}
+
+/* .time-control .line:nth-child(90n+2) {
+    height: 32px;
+} */
+
+.time-control .line:not(:last-child) {
+    margin-right: 3px;
 }

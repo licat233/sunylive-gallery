@@ -1,22 +1,29 @@
-import { useState, useEffect, useRef, useReducer } from "react";
+import { useState, useEffect, useRef, useReducer, useContext } from "react";
 import { requestAlbums } from './api/api';
-import { defaultState, reducer } from './reducer'
+import { defaultState, reducer } from './reducer';
+import LocomotiveScroll from 'locomotive-scroll';
+import { globalContext } from './App';
 import "./navigation.css";
+import "./lib/locomotive-scroll.css";
 
-export default function Navigation() {
+export default function Navigation(props) {
     const [albums, setAlbums] = useState([])
     const slogan_cn = "中国高端工匠木作代表品牌";
     const slogan_en = "Representative brand of Chinese high-end craftsman woodwork";
     let hasAlbums = false;
 
-    const [state, dispatch] = useReducer(reducer, defaultState)
+    const { setAlbumId } = useContext(globalContext)
+    // const [state, dispatch] = useReducer(reducer, defaultState)
 
     const clickNav = (e) => {
         const album_id = e.target.dataset.id
         if (typeof album_id === "undefined") return
-        state.current_album_id = album_id
-        dispatch({ ...state });
-        console.log("点击了nav：", album_id)
+        setAlbumId(album_id)
+        // setGlobalState({ ...globalState, currentAlbumI: album_id })
+        // globalState.clickNavEvent(album_id)
+        // state.current_album_id = album_id
+        // dispatch(defaultState);
+        // setCurrentAlbumId(album_id);
     }
 
     const initAlbums = async () => {
@@ -25,16 +32,7 @@ export default function Navigation() {
         const data = await requestAlbums()
         if (Array.isArray(data)) setAlbums(data);
     }
-    useEffect(() => {
-        if (!hasAlbums) {
-            initAlbums()
-        }
-        onScroll();
-        return () => {
-            initAlbums()
-        }
-        // eslint-disable-next-line
-    }, [hasAlbums]);
+
 
     const navRef = useRef();
     const navBoxRef = useRef();
@@ -51,24 +49,60 @@ export default function Navigation() {
             navRef.current.classList.remove("nav-container--top-second");
         }
     }
-
     const onScroll = () => {
         checkHeaderPosition();
     }
+    const onResize = () => {
+        window.addEventListener('resize', onScroll);
+    }
+
+    const globalScroll = useRef(null);
+    const navtabScroll = useRef(null);
+    const initScroll = () => {
+        if (!globalScroll.current) {
+            globalScroll.current = new LocomotiveScroll();
+            globalScroll.current.init();
+            globalScroll.current.on('scroll', (args) => {
+                onScroll()
+            })
+        } else {
+            globalScroll.current.update()
+        }
+        // if (!navtabScroll.current && navRef.current) {
+        //     navtabScroll.current = new LocomotiveScroll({
+        //         el: navRef.current,
+        //         smooth: true
+        //     });
+        //     navtabScroll.current.init();
+        // }else{
+        //     navtabScroll.current.update();
+        // }
+        // 监听滚动条
+        // window.addEventListener('scroll', onScroll);
+    }
 
     useEffect(() => {
-        // 监听滚动条时间
-        window.addEventListener('scroll', onScroll);
+        initAlbums()
+        initScroll()
+        onResize()
         return () => {
-            window.addEventListener('scroll', onScroll, false);
+            // globalScroll.current.destroy()
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        // eslint-disable-next-line
+    }, []);
 
+    // const ruller = () => {
+    //     return (
+    //         <div className="ruller">
+    //             {Array.apply(null, Array(272)).map((i) =>
+    //                 <div key={i} className="line" style="transform: translateY(0px);"></div>
+    //             )}
+    //         </div>
+    //     )
+    // }
 
-
-    return <>
-        <section className="nav" ref={navBoxRef}>
+    return <div className="navigationContainer">
+        <section id="nav" className="nav" ref={navBoxRef}>
             <h1>SUNYLIVE GALLERY</h1>
             <h3 className="span loader">
                 {slogan_cn.split("").map((word, index) => <span className="m" key={index}>{word}</span>)}
@@ -88,14 +122,20 @@ export default function Navigation() {
                     </g>
                 </svg>
             </div>
+            <div className="time-control">
+                <div className="ruller">
+                    {Array.apply(null, Array(272)).map((_, i) =>
+                        <div key={"line" + i} className="line" style={{ transform: "translateY(0px)" }}></div>
+                    )}
+                </div>
+            </div>
             <div className="nav-container" ref={navRef}>
                 {albums.map((album, index) => {
-                    return <div className="nav-tab" data-id={album.id} onClick={clickNav} key={index}>{album.name}</div>
+                    return <div className="nav-tab" data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
                 })}
                 <span className="nav-tab-slider"></span>
             </div>
         </section>
         <canvas className="background"></canvas>
-
-    </>
+    </div>
 }
