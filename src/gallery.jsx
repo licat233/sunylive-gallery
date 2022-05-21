@@ -1,13 +1,13 @@
 import { useEffect, useState, useRef } from "react";
-import { requestImages, requestAlbums } from './api/api';
-import Picture from './picture';
-import 'lazysizes';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
-import './gallery.css';
-import LocomotiveScroll from 'locomotive-scroll';
+import 'lazysizes';
+// import LocomotiveScroll from 'locomotive-scroll';
+// import "./lib/locomotive-scroll.css";
+import { requestImages, requestAlbums } from './api/api';
+import Picture from './picture';
 import "./navigation.css";
-import "./lib/locomotive-scroll.css";
+import './gallery.css';
 
 export default function Gallery(props) {
     const slogan_cn = "中国高端工匠木作代表品牌";
@@ -22,7 +22,15 @@ export default function Gallery(props) {
     const last_picture = useRef();
     const navRef = useRef();
     const navBoxRef = useRef();
-    const globalScroll = useRef(null);
+    // const globalScroll = useRef(null);
+    const reqAlbumId = useRef(-1); //请求过的相册id
+    const reqPage = useRef(-1); //请求过的page
+    const lastPage = useRef(99);
+    const galleryContainer = useRef(null);
+    const lastActiveTab = useRef(null);
+    const imageStorage = useRef([]);
+    const navigationContainer = useRef(null);
+    const scrollView = useRef(null);
 
     const initAlbums = async () => {
         if (hasAlbums.current) return;
@@ -46,11 +54,42 @@ export default function Gallery(props) {
         }
     }
 
-    const reqAlbumId = useRef(-1); //请求过的相册id
-    const reqPage = useRef(-1); //请求过的page
-    const lastPage = useRef(99);
+    //语法糖，获取元素top值
+    const getElementTop = (element) => {
+        var actualTop = element.offsetTop;
+        var current = element.offsetParent;
+        while (current !== null) {
+            actualTop += current.offsetTop;
+            current = current.offsetParent;
+        }
+        return actualTop;
+    }
+
+    //语法糖，滚动动画
+    const toScrollTop = (scrollTop) => {
+        //当前位置
+        let currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+        //计算
+        currentTop = currentTop + 100;
+        if (currentTop < scrollTop) {
+            window.scrollTo(0, currentTop)
+            setTimeout(() => {
+                toScrollTop(scrollTop)
+            })
+        } else {
+            window.scrollTo(0, scrollTop)
+        }
+    }
+
+    //滑动到gallery
+    const toPhotoSwipe = () => {
+        galleryContainer.current.classList.add("galleryBox");
+        toScrollTop(getElementTop(galleryContainer.current) - navRef.current.offsetHeight);
+        // galleryRef.current.scrollIntoView(true)
+    }
+
     // const imagesStore = useRef([]);
-    const updateImages = async (isReset = false) => {
+    const updateImages = async (type = "update") => {
         //相同的请求，不再执行
         if (reqAlbumId.current === albumId.current && reqPage.current === page.current) return console.log("相同的请求");
         //不同的请求，配置请求相册id和页码
@@ -72,29 +111,44 @@ export default function Gallery(props) {
         page.current++
         //新增到images中
         const reqImages = result.data;
+
+        //校验数据
         if (Array.isArray(reqImages)) {
-            if (isReset) {
-                setImages(reqImages);
+            if (type === "reset") {
+                // galleryRef.current.innerHTML = "";
+                setImages([])
+                imageStorage.current = [...reqImages];
+                setImages([...reqImages]);
             } else {
-                setImages([...images, ...reqImages]);
+                imageStorage.current = [...imageStorage.current, ...reqImages]
+                setImages([...imageStorage.current]);
             }
+            // console.log("当前storage:", imageStorage.current)
         } else {
-            console.log("获取images数据失败：", reqImages)
+            throw new Error("获取images数据失败：", reqImages)
         }
     }
 
-    const lastActiveTab = useRef(null);
-    //导航栏点击事件
-    const clickNav = (e) => {
-        if (lastActiveTab.current !== e.target) {
+    const switchTab = (target) => {
+        if (lastActiveTab.current !== target) {
             lastActiveTab.current && lastActiveTab.current.classList.remove("active");
-            lastActiveTab.current = e.target
+            lastActiveTab.current = target
             lastActiveTab.current.classList.add("active");
         }
+    }
+
+    //导航栏点击事件
+    const clickNav = (e) => {
         const album_id = e.target.dataset.id
         if (typeof album_id === "undefined") return console.log("获取相册id失败");
         //如果是相同的相册，则不重复处理
         if (albumId.current === album_id) return;
+        //切换标签
+        switchTab(e.target);
+        //滑动到gallery区域
+        toPhotoSwipe();
+        //清空images
+        setImages([])
         //重置页码
         page.current = 1;
         //重置最大页码
@@ -102,37 +156,41 @@ export default function Gallery(props) {
         //设置新的相册id
         albumId.current = album_id;
         //传入true，重置images
-        updateImages(true);
+        updateImages("reset");
     }
 
-    const initScroll = () => {
-        console.log(globalScroll.current)
-        if (!globalScroll.current) {
-            globalScroll.current = new LocomotiveScroll({
-                el: document.querySelector('#root'),
-                smooth: true
-            });
-            globalScroll.current.init();
-            globalScroll.current.on('scroll', (args) => {
-                onScroll()
-            })
-        } else {
-            globalScroll.current.update()
-        }
+
+    //语法糖，判断元素是否在窗口内
+    const isElementInViewport = (el) => {
+        //获取元素是否在可视区域
+        var rect = el.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <=
+            (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <=
+            (window.innerWidth || document.documentElement.clientWidth)
+        );
     }
 
-    //scroll事件
-    const onScroll = () => {
-        checkHeaderPosition();
+    //语法糖，判断滚动条是否已到底部
+    // const isScrollInBottom = (el) => {
+    //     const clientHeight = el.clientHeight;
+    //     const scrollTop = el.scrollTop;
+    //     const scrollHeight = el.scrollHeight;
+    //     return clientHeight + scrollTop === scrollHeight;
+    // }
+
+    const loadMoreImages = () => {
+        //滑动到底部，把最后一个标记一下
         //相较监听滚动条位置的最佳方案
-        if (!last_picture.current) return console.log("最后一个元素不存在");
-        if (last_picture.current.dataset.block) return console.log("最后一个元素已block");
-        if (last_picture.current.classList.contains("lazyloaded")) {
-            last_picture.current.dataset.block = "load"
-            // page.current++
+        if (!last_picture.current) return //console.log("最后一个元素不存在");
+        if (last_picture.current.dataset.block === "true") return //console.log("最后一个元素已block");
+        // if (last_picture.current.classList.contains("lazyloaded")) { //旧方案，需要等到图片加载完才能继续
+        if (isElementInViewport(last_picture.current)) {
+            last_picture.current.dataset.block = "true";
             updateImages()
-        } else {
-            console.log("最后一个元素没有被触发");
         }
     }
 
@@ -147,28 +205,65 @@ export default function Gallery(props) {
         photoswipe.current.init();
     }
 
+    const onResize = () => {
+        checkHeaderPosition()
+        navigationContainer.current.style.width = window.innerWidth + "px";
+        navigationContainer.current.style.height = window.innerHeight + "px";
+    }
+
+    const onScroll = () => {
+        checkHeaderPosition();
+        loadMoreImages();
+        // if(isScrollInBottom(scrollView.current)){
+        //     globalScroll.current.update();
+        // }
+    }
+
+    // const initLocomotiveScroll = () => {
+    //     if (globalScroll.current) {
+    //         globalScroll.current.update();
+    //         return
+    //     }
+    //     globalScroll.current = new LocomotiveScroll({
+    //         el: scrollView.current,
+    //         smooth: true,
+    //         // repeat: true,
+    //     });
+    //     // window.mys = globalScroll.current
+    //     // globalScroll.current.init();
+    //     globalScroll.current.on("scroll", () => {
+    //         onScroll()
+    //     })
+    // }
+
     useEffect(() => {
         initAlbums() //初始化相册
-        // initScroll() //初始化scroll
-        window.addEventListener('resize', onScroll); //监听窗口变化
-        window.addEventListener('scroll', onScroll);// 监听滚动条时间
+        onResize();
         initPhotoSwipe(); //初始化photoswipe
+        window.addEventListener('resize', onResize); //监听窗口变化
+        window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
         return () => {
-            window.removeEventListener('resize', onScroll);
+            window.removeEventListener('resize', onResize);
             window.removeEventListener('scroll', onScroll);
-            // globalScroll.current.destroy();
+            photoswipe.current && photoswipe.current.destroy();
+            photoswipe.current = null;
         }
         // eslint-disable-next-line
     }, []);
 
+    useEffect(() => {
+        // initLocomotiveScroll();
+    })
+
     const setLastPicture = (ele) => {
         //设置最后一个picture
         last_picture.current = ele;
+        // loadMoreImagesBlock.current = false;
     }
 
     return (
-        <>
-            <div className="navigationContainer">
+        <section ref={scrollView} >
+            <div className="navigationContainer" ref={navigationContainer}>
                 <section id="nav" className="nav" ref={navBoxRef}>
                     <h1>SUNYLIVE GALLERY</h1>
                     <h3 className="span loader">
@@ -203,12 +298,11 @@ export default function Gallery(props) {
                         <span className="nav-tab-slider"></span>
                     </div>
                 </section>
-                <canvas className="background"></canvas>
             </div>
-            <div className="galleryContainer">
+            <div className="galleryContainer" ref={galleryContainer}>
                 <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
-                    {images.map((image, index) => <Picture key={albumId.current + "-" + index} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
+                    {images.map((image, index) => <Picture key={index} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
                 </div>
             </div>
-        </>)
+        </section>)
 }

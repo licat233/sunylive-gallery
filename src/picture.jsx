@@ -18,7 +18,7 @@ export default function Picture(props) {
     const mark = width < height ? "vertical" : "horizontal";
 
     return <>
-        <figure className={"gallery-item " + mark} itemProp="associatedMedia" itemScope="" itemType="http://schema.org/ImageObject">
+        <figure className={ "gallery-item " + mark} itemProp="associatedMedia" itemScope="" itemType="http://schema.org/ImageObject">
             <a href={url}
                 itemProp="contentUrl"
                 data-size={size}
@@ -29,7 +29,7 @@ export default function Picture(props) {
                 target="_blank"
                 rel="noreferrer"
             >
-                <img ref={lastRef} className="lazyload lazypreload fadein"
+                <img ref={lastRef} className="lazyload fadein"
                     src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%201000%20500'%20%2F%3E"
                     data-src={thumb_url}
                     itemProp="thumbnail"

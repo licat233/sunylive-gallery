@@ -57,8 +57,8 @@ export default function Navigation(props) {
     }
 
     const globalScroll = useRef(null);
-    const navtabScroll = useRef(null);
-    const initScroll = () => {
+    // const navtabScroll = useRef(null);
+    const initLocomotiveScroll = () => {
         if (!globalScroll.current) {
             globalScroll.current = new LocomotiveScroll();
             globalScroll.current.init();
@@ -83,7 +83,7 @@ export default function Navigation(props) {
 
     useEffect(() => {
         initAlbums()
-        initScroll()
+        initLocomotiveScroll()
         onResize()
         return () => {
             // globalScroll.current.destroy()
