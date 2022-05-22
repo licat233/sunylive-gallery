@@ -73,20 +73,43 @@ export default function Gallery(props) {
         return actualTop;
     }
 
+    const lastScrollTop = useRef(-1);
     //语法糖，滚动动画
-    const toScroll = (scrollTop) => {
+    const toScroll = (scrollTop, direction) => {
         //当前位置
         let currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+        //判断是否没有变化
+        if (lastScrollTop.current === currentTop) {
+            return;
+        }
+        lastScrollTop.current = currentTop
         //计算
-        currentTop = currentTop + 80;
-        if (currentTop < scrollTop) {
-            window.scrollTo(0, currentTop)
-            setTimeout(() => {
-                toScroll(scrollTop)
-            })
+        const dif = scrollTop - currentTop;
+        if (dif > 0) {
+            if (direction && direction === "top") {
+                window.scrollTo(0, scrollTop)
+                return;
+            }
+            //如果大于0，说明当前滑动条在目标上方，需要往下滚动，++
+            currentTop += 80;
+            direction = "bottom"
+        } else if (dif < 0) {
+            if (direction && direction === "bottom") {
+                window.scrollTo(0, scrollTop)
+                return;
+            }
+            //如果小于0，说明当前滑动条在目标下方，需要往上滚动，--
+            currentTop -= 80;
+            direction = "top"
         } else {
             window.scrollTo(0, scrollTop)
+            return;
         }
+        
+        window.scrollTo(0, currentTop)
+        setTimeout(() => {
+            toScroll(scrollTop, direction)
+        })
     }
 
     //滑动到gallery
