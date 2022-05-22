@@ -9,7 +9,7 @@ export default function Picture(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    let { url, width, height, thumb_url } = props.image;
+    let { url, width, height, thumb_url, id } = props.image;
     if (width < 1920 || height < 1080) {
         width = width * 10
         height = height * 10
@@ -18,7 +18,7 @@ export default function Picture(props) {
     const mark = width < height ? "vertical" : "horizontal";
 
     return <>
-        <figure className={ "gallery-item " + mark} itemProp="associatedMedia" itemScope="" itemType="http://schema.org/ImageObject">
+        <figure className={"gallery-item " + mark} itemProp="associatedMedia" id={id} itemScope="" itemType="http://schema.org/ImageObject">
             <a href={url}
                 itemProp="contentUrl"
                 data-size={size}

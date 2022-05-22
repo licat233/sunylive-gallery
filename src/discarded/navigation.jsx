@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useReducer, useContext } from "react";
-import { requestAlbums } from './api/api';
+import { requestAlbums } from '../api/api';
 import { defaultState, reducer } from './reducer';
 import LocomotiveScroll from 'locomotive-scroll';
-import { globalContext } from './App';
+import { globalContext } from '../App';
 import "./navigation.css";
 import "./lib/locomotive-scroll.css";
 
@@ -136,6 +136,5 @@ export default function Navigation(props) {
                 <span className="nav-tab-slider"></span>
             </div>
         </section>
-        <canvas className="background"></canvas>
     </div>
 }
