@@ -47,15 +47,20 @@ export default function Gallery(props) {
     }
 
 
+    const navOffset = useRef(-1);
     //监听nav tab位置
     const onNavTabPosition = () => {
-        if (!navRef.current || !navBoxRef.current) return
-        const headerHeight = navRef.current.offsetHeight;
+        if (navOffset.current === -1) {
+            navOffset.current = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - navRef.current.offsetHeight;
+        };
+
+        // if (!navRef.current || !navBoxRef.current) return
+        // const headerHeight = navRef.current.offsetHeight;
         //滚动条距离顶部的距离
         const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         //【元素顶部】距离dom顶部的距离 = 父盒子到offsetParent顶部的距离 + 父盒子高度 - 自身高度
-        let offset = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - headerHeight;
-        if (scrollTop > offset) {
+        // let offset = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - headerHeight;
+        if (scrollTop > navOffset.current) {
             navRef.current.classList.add("nav-container--top-second");
         } else {
             navRef.current.classList.remove("nav-container--top-second");
@@ -105,7 +110,7 @@ export default function Gallery(props) {
             window.scrollTo(0, scrollTop)
             return;
         }
-        
+
         window.scrollTo(0, currentTop)
         setTimeout(() => {
             toScroll(scrollTop, direction)
@@ -568,7 +573,7 @@ export default function Gallery(props) {
     }
 
     const onResize = () => {
-        onNavTabPosition()
+        // onNavTabPosition()
         navigationContainer.current.style.width = window.innerWidth + "px";
         navigationContainer.current.style.height = window.innerHeight + "px";
     }
@@ -606,6 +611,7 @@ export default function Gallery(props) {
     }
 
     useEffect(() => {
+        navOffset.current = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - navRef.current.offsetHeight;
         initAlbums() //初始化相册
         onResize();
         initPhotoSwipe(); //初始化photoswipe

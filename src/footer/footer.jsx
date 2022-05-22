@@ -49,19 +49,21 @@ export default function Footer() {
                     </ul>
                 </div>
 
+
+                <div className="footer-item">
+                    <h6>关注我们</h6>
+                    <ul className="social-icons">
+                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="wechat" src={wechat1} /></a></li>
+                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="wechat" src={wechat2} /></a></li>
+                    </ul>
+                </div>
+
                 <div className="footer-item">
                     <h6>相关链接</h6>
                     <ul className="footer-links">
                         <li><a href="about:blank" target="_blank" rel="noreferrer">sunylive官网</a></li>
                         <li><a href="about:blank" target="_blank" rel="noreferrer">Contact Us</a></li>
                         {/* <li><span onClick={showDisclaims}>站点声明</span></li> */}
-                    </ul>
-                </div>
-                <div className="footer-item">
-                    <h6>关注我们</h6>
-                    <ul className="social-icons">
-                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="wechat" src={wechat1} /></a></li>
-                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="wechat" src={wechat2} /></a></li>
                     </ul>
                 </div>
             </div>
