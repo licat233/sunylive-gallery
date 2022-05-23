@@ -1,5 +1,6 @@
 // import { useRef } from 'react';
 import "./footer.css";
+import $ from 'jquery.scrollto';
 import wechat1 from "../images/wechat1.jpg";
 import wechat2 from "../images/wechat2.jpg";
 
@@ -29,14 +30,21 @@ export default function Footer() {
     //         disclaims.current.classList.remove("animate__backOutDown");
     //     }, 1000)
     // }
-    const to_scroll_top = () => {
-        const to_scrollTop = .6 * (document.documentElement.scrollTop || document.body.scrollTop || 0);
-        if (to_scrollTop > 10) {
-            window.scrollTo(0, to_scrollTop)
-            window.setTimeout(to_scroll_top, 20)
-        } else {
-            window.scrollTo(0, 0)
-        }
+    // const to_scroll_top = () => {
+    //     const to_scrollTop = .6 * (document.documentElement.scrollTop || document.body.scrollTop || 0);
+    //     if (to_scrollTop > 10) {
+    //         window.scrollTo(0, to_scrollTop)
+    //         window.setTimeout(to_scroll_top, 20)
+    //     } else {
+    //         window.scrollTo(0, 0)
+    //     }
+    // }
+
+    const toScrollTop = () => {
+        $(window).scrollTo(0, {
+            axis: 'y',
+            duration: 400
+        });
     }
 
     return (
@@ -73,7 +81,7 @@ export default function Footer() {
                     <ul className="footer-links">
                         <li><a href="about:blank" target="_blank" rel="noreferrer">sunylive官网</a></li>
                         <li><a href="about:blank" target="_blank" rel="noreferrer">Contact Us</a></li>
-                        <li><span onClick={to_scroll_top}>回到顶部|TOP</span></li>
+                        <li><span onClick={toScrollTop}>回到顶部|TOP</span></li>
                     </ul>
                 </div>
             </div>
