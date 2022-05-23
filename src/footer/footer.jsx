@@ -29,6 +29,16 @@ export default function Footer() {
     //         disclaims.current.classList.remove("animate__backOutDown");
     //     }, 1000)
     // }
+    const to_scroll_top = () => {
+        const to_scrollTop = .6 * (document.documentElement.scrollTop || document.body.scrollTop || 0);
+        if (to_scrollTop > 10) {
+            window.scrollTo(0, to_scrollTop)
+            window.setTimeout(to_scroll_top, 20)
+        } else {
+            window.scrollTo(0, 0)
+        }
+    }
+
     return (
         <footer className="site-footer">
             <div className="footer-container">
@@ -63,7 +73,7 @@ export default function Footer() {
                     <ul className="footer-links">
                         <li><a href="about:blank" target="_blank" rel="noreferrer">sunylive官网</a></li>
                         <li><a href="about:blank" target="_blank" rel="noreferrer">Contact Us</a></li>
-                        {/* <li><span onClick={showDisclaims}>站点声明</span></li> */}
+                        <li><span onClick={to_scroll_top}>回到顶部</span></li>
                     </ul>
                 </div>
             </div>

@@ -5,6 +5,7 @@ import 'lazysizes';
 // import LocomotiveScroll from 'locomotive-scroll';
 // import "./lib/locomotive-scroll.css";
 import { writeStorage, useLocalStorage } from '@rehooks/local-storage';
+import $ from 'jquery.scrollto';
 import { requestImages, requestAlbums } from './api/api';
 import Picture from './picture';
 import "./css/navigation.css";
@@ -15,7 +16,7 @@ export default function Gallery(props) {
     const slogan_cn = "中国高端工匠木作代表品牌";
     const slogan_en = "Representative brand of Chinese high-end craftsman woodwork";
 
-    const albumId = useRef(0);
+    const albumId = useRef(-1); //默认显示收藏夹
     const page = useRef(0);
     const [albums, setAlbums] = useState([]);
     const [images, setImages] = useState([]);
@@ -31,6 +32,7 @@ export default function Gallery(props) {
     const lastPage = useRef(99);
     const galleryContainer = useRef();
     const lastActiveTab = useRef();
+    const collectRef = useRef();
     const imageStorage = useRef([]);
     const navigationContainer = useRef();
     const scrollView = useRef();
@@ -46,7 +48,6 @@ export default function Gallery(props) {
         if (Array.isArray(data)) setAlbums(data);
     }
 
-
     const navOffset = useRef(-1);
     //监听nav tab位置
     const onNavTabPosition = () => {
@@ -54,7 +55,7 @@ export default function Gallery(props) {
             navOffset.current = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - navRef.current.offsetHeight;
         };
 
-        // if (!navRef.current || !navBoxRef.current) return
+        if (!navRef.current || !navBoxRef.current) return
         // const headerHeight = navRef.current.offsetHeight;
         //滚动条距离顶部的距离
         const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -78,50 +79,58 @@ export default function Gallery(props) {
         return actualTop;
     }
 
-    const lastScrollTop = useRef(-1);
+    // const lastScrollTop = useRef(-1);
     //语法糖，滚动动画
-    const toScroll = (scrollTop, direction) => {
-        //当前位置
-        let currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
-        //判断是否没有变化
-        if (lastScrollTop.current === currentTop) {
-            return;
-        }
-        lastScrollTop.current = currentTop
-        //计算
-        const dif = scrollTop - currentTop;
-        if (dif > 0) {
-            if (direction && direction === "top") {
-                window.scrollTo(0, scrollTop)
-                return;
-            }
-            //如果大于0，说明当前滑动条在目标上方，需要往下滚动，++
-            currentTop += 80;
-            direction = "bottom"
-        } else if (dif < 0) {
-            if (direction && direction === "bottom") {
-                window.scrollTo(0, scrollTop)
-                return;
-            }
-            //如果小于0，说明当前滑动条在目标下方，需要往上滚动，--
-            currentTop -= 80;
-            direction = "top"
-        } else {
-            window.scrollTo(0, scrollTop)
-            return;
-        }
+    // const toScroll = (scrollTop, direction) => {
+        
+    //     //当前位置
+    //     let currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+    //     //判断是否没有变化
+    //     if (lastScrollTop.current === currentTop) {
+    //         return;
+    //     }
+    //     lastScrollTop.current = currentTop
+    //     //计算
+    //     const dif = scrollTop - currentTop;
+    //     if (dif > 0) {
+    //         if (direction && direction === "top") {
+    //             window.scrollTo(0, scrollTop)
+    //             return;
+    //         }
+    //         //如果大于0，说明当前滑动条在目标上方，需要往下滚动，++
+    //         currentTop += 40;
+    //         direction = "bottom"
+    //     } else if (dif < 0) {
+    //         if (direction && direction === "bottom") {
+    //             window.scrollTo(0, scrollTop)
+    //             return;
+    //         }
+    //         //如果小于0，说明当前滑动条在目标下方，需要往上滚动，--
+    //         currentTop -= 40;
+    //         direction = "top"
+    //     } else {
+    //         window.scrollTo(0, scrollTop)
+    //         return;
+    //     }
 
-        window.scrollTo(0, currentTop)
-        setTimeout(() => {
-            toScroll(scrollTop, direction)
-        })
-    }
+    //     window.scrollTo(0, currentTop)
+    //     setTimeout(() => {
+    //         toScroll(scrollTop, direction)
+    //     })
+    // }
 
     //滑动到gallery
     const toPhotoSwipe = () => {
-        galleryContainer.current.classList.add("galleryBox");
-        const top = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
-        toScroll(top); //方案一
+        const targetScroll = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
+        $(window).scrollTo(targetScroll, {
+            axis: 'y',
+            duration: 400
+        });
+        return;
+        // document.body.style.overflow = "auto";
+        // galleryContainer.current.classList.add("galleryBox");
+        
+        // toScroll(top); //方案一
         // galleryContainer.current.scrollIntoView(true) //方案二
         // smoothScroll.current.to(galleryContainer.current) //方案三
         //综合方案，有bug
@@ -133,8 +142,11 @@ export default function Gallery(props) {
     }
 
     const onMouseScroll = () => {
-        const top = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
-        toScroll(top);
+        toPhotoSwipe()
+        // document.body.style.overflow = "auto";
+        // showCollectImages();
+        // const top = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
+        // toScroll(top);
     }
 
     // const imagesStore = useRef([]);
@@ -188,16 +200,25 @@ export default function Gallery(props) {
         }
     }
 
+    const showCollectImages = () => {
+        if (albumId.current === -1) {
+            imageStorage.current = [...collectImages.current];
+            setImages([...imageStorage.current]);
+            switchTab(collectRef.current);
+            return
+        }
+    }
+
     //导航栏点击事件
     const clickNav = (e) => {
+        //滑动到gallery区域
+        toPhotoSwipe();
         if (typeof e.target.dataset.id === "undefined") return console.log("获取相册id失败");
         const album_id = +e.target.dataset.id
         //如果是相同的相册，则不重复处理
-        if (albumId.current === album_id) return;
+        if (lastActiveTab.current === e.target) return;
         //切换标签
         switchTab(e.target);
-        //滑动到gallery区域
-        toPhotoSwipe();
         //清空images
         setImages([])
         //重置页码
@@ -211,7 +232,7 @@ export default function Gallery(props) {
             //此处加载收藏夹内存数据
             imageStorage.current = [...collectImages.current];
             setImages([...imageStorage.current]);
-            return
+            return;
         }
         //传入reset，重置images
         updateImages("reset");
@@ -573,7 +594,7 @@ export default function Gallery(props) {
     }
 
     const onResize = () => {
-        // onNavTabPosition()
+        onNavTabPosition()
         navigationContainer.current.style.width = window.innerWidth + "px";
         navigationContainer.current.style.height = window.innerHeight + "px";
     }
@@ -583,22 +604,22 @@ export default function Gallery(props) {
         loadMoreImages();
     }
 
-    //初始化 locomotiveScroll
+    // // 初始化 locomotiveScroll
     // const initLocomotiveScroll = () => {
     //     if (smoothScroll.current) {
     //         smoothScroll.current.update();
     //         return
     //     }
     //     smoothScroll.current = new LocomotiveScroll({
-    //         el: scrollView.current,
+    //         el: navigationContainer.current,
     //         smooth: true,
     //         getSpeed: true,
     //         repeat: false,
     //         getDirection: true,
     //     });
-    //     smoothScroll.current.on("scroll", () => {
-    //         onScroll()
-    //     })
+    //     // smoothScroll.current.on("scroll", () => {
+    //     //     onScroll()
+    //     // })
     // }
 
     const initCollectImages = () => {
@@ -619,9 +640,10 @@ export default function Gallery(props) {
         window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
         // initLocomotiveScroll(); //初始化LocomotiveScroll
         initCollectImages() //初始化collectImages数据
+        showCollectImages() //默认显示collect数据
         return () => {
-            window.removeEventListener('resize', onResize);
-            window.removeEventListener('scroll', onScroll);
+            // window.removeEventListener('resize', onResize);
+            // window.removeEventListener('scroll', onScroll);
             photoswipe.current && photoswipe.current.destroy();
             photoswipe.current = null;
         }
@@ -693,7 +715,7 @@ export default function Gallery(props) {
                         </div>
                     </div>
                     <div className="nav-container" ref={navRef}>
-                        <div className="nav-tab" data-id={-1} onClick={clickNav} key="collect">收藏</div>
+                        <div className="nav-tab" data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
                         {albums.map((album, index) => {
                             return <div className="nav-tab" data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
                         })}
@@ -703,7 +725,7 @@ export default function Gallery(props) {
                     <canvas className="background" />
                 </section>
             </div>
-            <div className="galleryContainer" ref={galleryContainer}>
+            <div className="galleryContainer galleryBox" ref={galleryContainer}>
                 <div className="gallery-background">
                     <div id="stars"></div>
                     <div id="stars2"></div>
