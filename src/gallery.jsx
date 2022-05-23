@@ -473,11 +473,9 @@ export default function Gallery(props) {
         photoswipe.current.init();
     }
 
-    const onResize = () => {
-        onNavTabPosition()
-        navBoxRef.current.style.width = window.innerWidth + "px";
-        navBoxRef.current.style.height = window.innerHeight + "px";
-    }
+    // const onResize = () => {
+    //     onNavTabPosition()
+    // }
 
     const onScroll = () => {
         onNavTabPosition();
@@ -525,17 +523,23 @@ export default function Gallery(props) {
         </>
     }
 
+    const initNavSize = () => {
+        navBoxRef.current.style.width || (navBoxRef.current.style.width = window.innerWidth + "px");
+        navBoxRef.current.style.height || (navBoxRef.current.style.height = window.innerHeight + "px");
+    }
+
     useEffect(() => {
+        initNavSize()
         initAlbums() //初始化相册
         initCollectImages() //初始化collectImages数据
         initShowAlbumImages() //初始化显示的图片
-        onResize();
+        // onResize();
         initPhotoSwipe(); //初始化photoswipe
-        window.addEventListener('resize', onResize); //监听窗口变化
+        // window.addEventListener('resize', onResize); //监听窗口变化
         window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
         // initLocomotiveScroll(); //初始化LocomotiveScroll
         return () => {
-            window.removeEventListener('resize', onResize);
+            // window.removeEventListener('resize', onResize);
             window.removeEventListener('scroll', onScroll);
             photoswipe.current && photoswipe.current.destroy();
             photoswipe.current = null;
