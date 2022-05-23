@@ -71,8 +71,8 @@ export default function Footer() {
                 <div className="footer-item">
                     <h6>关注我们</h6>
                     <ul className="social-icons">
-                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="wechat" src={wechat1} /></a></li>
-                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="wechat" src={wechat2} /></a></li>
+                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="add wechat" className="lazyload" data-src={wechat1} width="100" height="100"  src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%201000%20500'%20%2F%3E"/></a></li>
+                        <li><a className="wechat" href="wechat://" target="_blank" rel="noreferrer"><img alt="add wechat" className="lazyload" data-src={wechat2} width="100" height="100"  src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%201000%20500'%20%2F%3E"/></a></li>
                     </ul>
                 </div>
 

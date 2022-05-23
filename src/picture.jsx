@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import 'lazysizes';
 
 export default function Picture(props) {
     const lastRef = useRef();
@@ -29,7 +30,7 @@ export default function Picture(props) {
                 target="_blank"
                 rel="noreferrer"
             >
-                <img ref={lastRef} className="lazyload fadein"
+                <img ref={lastRef} className="lazyload fadein" width={width} height={height}
                     src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%201000%20500'%20%2F%3E"
                     data-src={thumb_url}
                     itemProp="thumbnail"

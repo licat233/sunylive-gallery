@@ -12,11 +12,19 @@ import "./css/navigation.css";
 import './css/gallery.css';
 import './css/star.css';
 
+const initAlbumId = () => {
+    const album_id = window.sessionStorage.getItem("album_id");
+    if (album_id) {
+        return +album_id
+    } else {
+        return -1;
+    }
+}
+
 export default function Gallery(props) {
     const slogan_cn = "中国高端工匠木作代表品牌";
     const slogan_en = "Representative brand of Chinese high-end craftsman woodwork";
-
-    const albumId = useRef(-1); //默认显示收藏夹
+    const albumId = useRef(initAlbumId()); //默认显示收藏夹
     const page = useRef(0);
     const [albums, setAlbums] = useState([]);
     const [images, setImages] = useState([]);
@@ -47,6 +55,7 @@ export default function Gallery(props) {
         const data = await requestAlbums()
         if (Array.isArray(data)) setAlbums(data);
     }
+
     //滚动条距离顶部的距离
     const get_scrollTop_of_body = () => {
         let scrollTop;
@@ -145,7 +154,7 @@ export default function Gallery(props) {
             axis: 'y',
             duration: 400
         });
-        return;
+
         // document.body.style.overflow = "auto";
         // galleryContainer.current.classList.add("galleryBox");
 
@@ -160,8 +169,21 @@ export default function Gallery(props) {
         // }
     }
 
+    const initScreen = () => {
+        const currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+        if (currentTop > 0) {
+            document.body.style.overflow = "auto";
+        } else {
+            document.body.style.overflow = "hidden";
+        }
+    }
+
     const onMouseScroll = () => {
         toPhotoSwipe()
+        //展现相册图片
+        if (imageStorage.current.length === 0) {
+            showAlbumImages()
+        }
         // document.body.style.overflow = "auto";
         // showCollectImages();
         // const top = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
@@ -219,13 +241,25 @@ export default function Gallery(props) {
         }
     }
 
-    const showCollectImages = () => {
+    // const showCollectImages = () => {
+    //     if (albumId.current === -1) {
+    //         imageStorage.current = [...collectImages.current];
+    //         setImages([...imageStorage.current]);
+    //         switchTab(collectRef.current);
+    //         return
+    //     }
+    // }
+
+    const showAlbumImages = () => {
+        //-1表示收藏夹
         if (albumId.current === -1) {
+            //此处加载收藏夹内存数据
             imageStorage.current = [...collectImages.current];
             setImages([...imageStorage.current]);
-            switchTab(collectRef.current);
-            return
+            return;
         }
+        //传入reset，重置images
+        updateImages("reset");
     }
 
     //导航栏点击事件
@@ -246,15 +280,10 @@ export default function Gallery(props) {
         lastPage.current = -1;
         //设置新的相册id
         albumId.current = album_id;
-        //-1表示收藏夹
-        if (album_id === -1) {
-            //此处加载收藏夹内存数据
-            imageStorage.current = [...collectImages.current];
-            setImages([...imageStorage.current]);
-            return;
-        }
-        //传入reset，重置images
-        updateImages("reset");
+        //缓存到本地
+        window.sessionStorage.setItem("album_id", albumId.current)
+        //展现相册图片
+        showAlbumImages()
     }
 
 
@@ -271,7 +300,6 @@ export default function Gallery(props) {
             (window.innerWidth || document.documentElement.clientWidth)
         );
     }
-
     //语法糖，判断滚动条是否已到底部
     // const isScrollInBottom = (el) => {
     //     const clientHeight = el.clientHeight;
@@ -293,9 +321,9 @@ export default function Gallery(props) {
     }
 
     //photoSwipe的工具
-    const isPhonePortrait = () => {
-        return window.matchMedia('(max-width: 600px) and (orientation: portrait)').matches;
-    }
+    // const isPhonePortrait = () => {
+    //     return window.matchMedia('(max-width: 600px) and (orientation: portrait)').matches;
+    // }
 
     const getContainer = () => {
         const pswpContainer = document.createElement('div');
@@ -650,15 +678,34 @@ export default function Gallery(props) {
         }
     }
 
+    const initShowAlbumImages = () => {
+        //如果当前处于top，则不显示
+        const currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+        if (currentTop !== 0) {
+            showAlbumImages()
+        }
+    }
+
+    const renderNavTab = () => {
+        return <>
+            <div className={albumId.current === -1 ? "nav-tab active" : "nav-tab"} data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
+            {albums.map((album, index) => {
+                const name = albumId.current === album.id ? "nav-tab active" : "nav-tab";
+                return <div className={name} data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
+            })}
+        </>
+    }
+
     useEffect(() => {
+        initScreen()
         initAlbums() //初始化相册
+        initCollectImages() //初始化collectImages数据
+        initShowAlbumImages() //初始化显示的图片
         onResize();
         initPhotoSwipe(); //初始化photoswipe
         window.addEventListener('resize', onResize); //监听窗口变化
         window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
         // initLocomotiveScroll(); //初始化LocomotiveScroll
-        initCollectImages() //初始化collectImages数据
-        showCollectImages() //默认显示collect数据
         return () => {
             window.removeEventListener('resize', onResize);
             window.removeEventListener('scroll', onScroll);
@@ -733,10 +780,7 @@ export default function Gallery(props) {
                         </div>
                     </div>
                     <div className="nav-container" ref={navRef}>
-                        <div className="nav-tab" data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
-                        {albums.map((album, index) => {
-                            return <div className="nav-tab" data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
-                        })}
+                        {renderNavTab()}
                         <span className="nav-tab-slider"></span>
                     </div>
                     <canvas className="background" />

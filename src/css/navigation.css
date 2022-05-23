@@ -75,12 +75,16 @@
     overflow: -moz-scrollbars-none;
 } */
 
-body {
+.blockScreen{
+    overflow: hidden;
+}
+
+body{
     overflow: hidden;
 }
 
 .unblockScreen {
-    overflow: auto !important;
+    overflow: auto;
 }
 
 .navigationContainer {
