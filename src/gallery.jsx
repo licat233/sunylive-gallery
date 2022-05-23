@@ -7,6 +7,7 @@ import 'lazysizes';
 import { writeStorage, useLocalStorage } from '@rehooks/local-storage';
 import $ from 'jquery.scrollto';
 import { requestImages, requestAlbums } from './api/api';
+import Footer from './footer/footer';
 import Picture from './picture';
 import "./css/navigation.css";
 import './css/gallery.css';
@@ -47,6 +48,7 @@ export default function Gallery(props) {
     const loadRef = useRef();
     const [localImages, setLocalImages, deleteLocalImages] = useLocalStorage('collectImages', []);
     const collectImages = useRef([]);
+    const contentRef = useRef();
 
     const initAlbums = async () => {
         if (hasAlbums.current) return;
@@ -97,7 +99,8 @@ export default function Gallery(props) {
 
     //滑动到gallery
     const toPhotoSwipe = () => {
-        document.body.style.overflow = "auto";
+        contentRef.current.style.display = "block";
+        window.name = "sunylive";
         const targetScroll = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
         $(window).scrollTo(targetScroll, {
             axis: 'y',
@@ -110,18 +113,21 @@ export default function Gallery(props) {
         if (window.name === "sunylive") {
             return true
         }
-        window.name = "sunylive";
         return false
     }
 
     const initScreen = () => {
         if (isReload()) {
-            document.body.style.overflow = "auto";
+            contentRef.current.style.display = "block";
         } else {
-            window.scrollTo(0, 0)
-            document.body.style.overflow = "hidden";
+            contentRef.current.style.display = "none";
         }
     }
+
+    useEffect(() => {
+        initScreen()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const onMouseScroll = () => {
         toPhotoSwipe()
@@ -518,7 +524,6 @@ export default function Gallery(props) {
     }
 
     useEffect(() => {
-        initScreen()
         initAlbums() //初始化相册
         initCollectImages() //初始化collectImages数据
         initShowAlbumImages() //初始化显示的图片
@@ -607,12 +612,21 @@ export default function Gallery(props) {
                     <canvas className="background" />
                 </section>
             </div>
-            <div className="galleryContainer galleryBox" ref={galleryContainer}>
-                {/* <canvas className="background" /> */}
-                <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
-                    {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
+
+            <section ref={contentRef} className="contentContainer">
+                <div className="galleryContainer galleryBox" ref={galleryContainer}>
+                    {/* <canvas className="background" /> */}
+                    <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
+                        {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
+                    </div>
+                    {loading()}
                 </div>
-                {loading()}
-            </div>
+                <Footer />
+                <div className="star-background">
+                    <div id="stars"></div>
+                    <div id="stars2"></div>
+                    <div id="stars3"></div>
+                </div>
+            </section>
         </>)
 }

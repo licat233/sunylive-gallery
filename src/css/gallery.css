@@ -6,6 +6,11 @@
     font-family: "Montserrat", "HelveticaNeueLTStd", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
     line-height: 1.5;
 } */
+
+.contentContainer{
+    display: none;
+}
+
 .galleryContainer {
     position: relative;
     font-family: "Montserrat", "HelveticaNeueLTStd", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -13,7 +18,7 @@
 
 .galleryBox {
     height: 100%;
-    min-height: 50vh;
+    min-height: 90vh;
     padding-bottom: 100px;
     width: 100%;
 }
@@ -285,6 +290,11 @@ html:not(.lazy-images) .gallery-item a:after {
     width: 100%;
     -o-object-fit: cover;
        object-fit: cover;
+}
+
+.gallery-item img.focus{
+    transition: all 0.3s;
+    transform: scale(1.2);
 }
 
 .gallery-item a {
