@@ -47,26 +47,44 @@ export default function Gallery(props) {
         const data = await requestAlbums()
         if (Array.isArray(data)) setAlbums(data);
     }
+    //滚动条距离顶部的距离
+    const get_scrollTop_of_body = () => {
+        let scrollTop;
+        if (typeof window.pageYOffset != 'undefined') {//pageYOffset指的是滚动条顶部到网页顶部的距离
+            scrollTop = window.pageYOffset;
+        } else if (typeof document.compatMode !== 'undefined' && document.compatMode !== 'BackCompat') {
+            scrollTop = document.documentElement.scrollTop;
+        } else if (typeof document.body != 'undefined') {
+            scrollTop = document.body.scrollTop;
+        }
+        return scrollTop;
+    }
 
-    const navOffset = useRef(-1);
+    // const navOffset = useRef(-1);
     //监听nav tab位置
     const onNavTabPosition = () => {
-        if (navOffset.current === -1) {
-            navOffset.current = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - navRef.current.offsetHeight;
-        };
+        // if (navOffset.current === -1) {
+        //     navOffset.current = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - navRef.current.offsetHeight;
+        // };
 
-        if (!navRef.current || !navBoxRef.current) return
-        // const headerHeight = navRef.current.offsetHeight;
+        // if (!navRef.current || !navBoxRef.current) return
+        if (!navRef.current) return
+        const headerHeight = navRef.current.offsetHeight;
         //滚动条距离顶部的距离
-        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        // const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
         //【元素顶部】距离dom顶部的距离 = 父盒子到offsetParent顶部的距离 + 父盒子高度 - 自身高度
-        // let offset = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - headerHeight;
-        if (scrollTop > navOffset.current) {
+        let offset = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - headerHeight;
+        if (get_scrollTop_of_body() > offset) {
             navRef.current.classList.add("nav-container--top-second");
         } else {
             navRef.current.classList.remove("nav-container--top-second");
         }
     }
+
+    // useEffect(() => {
+    //     //偏移量 = nav的高度
+    //     navOffset.current = navBoxRef.current.offsetHeight + 40;
+    // }, [])
 
     //语法糖，获取元素top值
     const getElementTop = (element) => {
@@ -82,7 +100,7 @@ export default function Gallery(props) {
     // const lastScrollTop = useRef(-1);
     //语法糖，滚动动画
     // const toScroll = (scrollTop, direction) => {
-        
+
     //     //当前位置
     //     let currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
     //     //判断是否没有变化
@@ -129,7 +147,7 @@ export default function Gallery(props) {
         return;
         // document.body.style.overflow = "auto";
         // galleryContainer.current.classList.add("galleryBox");
-        
+
         // toScroll(top); //方案一
         // galleryContainer.current.scrollIntoView(true) //方案二
         // smoothScroll.current.to(galleryContainer.current) //方案三
@@ -595,8 +613,8 @@ export default function Gallery(props) {
 
     const onResize = () => {
         onNavTabPosition()
-        navigationContainer.current.style.width = window.innerWidth + "px";
-        navigationContainer.current.style.height = window.innerHeight + "px";
+        navBoxRef.current.style.width = window.innerWidth + "px";
+        navBoxRef.current.style.height = window.innerHeight + "px";
     }
 
     const onScroll = () => {
@@ -632,7 +650,6 @@ export default function Gallery(props) {
     }
 
     useEffect(() => {
-        navOffset.current = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - navRef.current.offsetHeight;
         initAlbums() //初始化相册
         onResize();
         initPhotoSwipe(); //初始化photoswipe
@@ -642,8 +659,8 @@ export default function Gallery(props) {
         initCollectImages() //初始化collectImages数据
         showCollectImages() //默认显示collect数据
         return () => {
-            // window.removeEventListener('resize', onResize);
-            // window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onResize);
+            window.removeEventListener('scroll', onScroll);
             photoswipe.current && photoswipe.current.destroy();
             photoswipe.current = null;
         }
@@ -719,18 +736,13 @@ export default function Gallery(props) {
                         {albums.map((album, index) => {
                             return <div className="nav-tab" data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
                         })}
-
                         <span className="nav-tab-slider"></span>
                     </div>
                     <canvas className="background" />
                 </section>
+
             </div>
             <div className="galleryContainer galleryBox" ref={galleryContainer}>
-                <div className="gallery-background">
-                    <div id="stars"></div>
-                    <div id="stars2"></div>
-                    <div id="stars3"></div>
-                </div>
                 {/* <canvas className="background" /> */}
                 <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
                     {images.map((image, index) => <Picture key={image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}

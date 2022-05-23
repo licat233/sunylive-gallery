@@ -73,7 +73,7 @@ export default function Footer() {
                     <ul className="footer-links">
                         <li><a href="about:blank" target="_blank" rel="noreferrer">sunylive官网</a></li>
                         <li><a href="about:blank" target="_blank" rel="noreferrer">Contact Us</a></li>
-                        <li><span onClick={to_scroll_top}>回到顶部</span></li>
+                        <li><span onClick={to_scroll_top}>回到顶部|TOP</span></li>
                     </ul>
                 </div>
             </div>
