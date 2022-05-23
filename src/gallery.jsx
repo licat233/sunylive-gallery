@@ -139,6 +139,7 @@ export default function Gallery(props) {
 
     //滑动到gallery
     const toPhotoSwipe = () => {
+        document.body.style.overflow = "auto";
         const targetScroll = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
         $(window).scrollTo(targetScroll, {
             axis: 'y',
@@ -452,20 +453,20 @@ export default function Gallery(props) {
             gallery: '#gallery',
             children: 'figure',
             pswpModule: () => import('photoswipe'),
-            initialZoomLevel: (zoomLevelObject) => {
-                if (isPhonePortrait()) {
-                    return zoomLevelObject.vFill;
-                } else {
-                    return zoomLevelObject.fit;
-                }
-            },
-            secondaryZoomLevel: (zoomLevelObject) => {
-                if (isPhonePortrait()) {
-                    return zoomLevelObject.fit;
-                } else {
-                    return 1;
-                }
-            },
+            // initialZoomLevel: (zoomLevelObject) => {
+            //     if (isPhonePortrait()) {
+            //         return zoomLevelObject.vFill;
+            //     } else {
+            //         return zoomLevelObject.fit;
+            //     }
+            // },
+            // secondaryZoomLevel: (zoomLevelObject) => {
+            //     if (isPhonePortrait()) {
+            //         return zoomLevelObject.fit;
+            //     } else {
+            //         return 1;
+            //     }
+            // },
             // maxZoomLevel: 1,
             // // Add function that returns promise
             // openPromise: getFullscreenPromise,

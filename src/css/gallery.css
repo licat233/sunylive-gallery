@@ -485,3 +485,22 @@ html:not(.lazy-images) .gallery-item a:after {
         opacity: 0;
     }
 }
+
+/*手机*/
+@media screen and (max-width:600px){
+    .gallery-caption{
+        display: none;
+    }
+}
+/*平板*/
+@media screen and (min-width:600px) and (max-width:960px){
+    .gallery-caption{
+        display: none;
+    }
+}
+/*PC*/
+@media screen and (min-width:960px){
+    .gallery-caption{
+        display: block;
+    }
+}
