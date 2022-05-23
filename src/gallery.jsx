@@ -194,6 +194,8 @@ export default function Gallery(props) {
             //此处加载收藏夹内存数据
             imageStorage.current = [...collectImages.current];
             setImages([...imageStorage.current]);
+            reqAlbumId.current = albumId.current;
+            reqPage.current = page.current++;
             return;
         }
         //传入reset，重置images
@@ -207,7 +209,7 @@ export default function Gallery(props) {
         if (typeof e.target.dataset.id === "undefined") return console.log("获取相册id失败");
         const album_id = +e.target.dataset.id
         //如果是相同的相册，则不重复处理
-        if (lastActiveTab.current === e.target) return;
+        if (lastActiveTab.current === e.target) return// console.log("相同的相册");
         //切换标签
         switchTab(e.target);
         //清空images
