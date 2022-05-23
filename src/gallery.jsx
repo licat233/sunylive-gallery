@@ -17,6 +17,7 @@ const initAlbumId = () => {
     if (album_id) {
         return +album_id
     } else {
+        window.sessionStorage.setItem("album_id", -1)
         return -1;
     }
 }
@@ -169,11 +170,19 @@ export default function Gallery(props) {
         // }
     }
 
+    const isReload = () => {
+        if (window.name === "sunylive") {
+            return true
+        }
+        window.name = "sunylive";
+        return false
+    }
+
     const initScreen = () => {
-        const currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
-        if (currentTop > 0) {
+        if (isReload()) {
             document.body.style.overflow = "auto";
         } else {
+            window.scrollTo(0, 0)
             document.body.style.overflow = "hidden";
         }
     }
@@ -679,9 +688,8 @@ export default function Gallery(props) {
     }
 
     const initShowAlbumImages = () => {
-        //如果当前处于top，则不显示
-        const currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
-        if (currentTop !== 0) {
+        //如果是刷新页面，则显示图片
+        if (isReload()) {
             showAlbumImages()
         }
     }
