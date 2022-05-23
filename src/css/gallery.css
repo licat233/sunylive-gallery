@@ -222,6 +222,13 @@ html:not(.lazy-images) .gallery-item a:after {
     display: grid;
     grid-template-rows: flow;
     grid-auto-flow: dense;
+    overflow-y: auto;
+    /* max-height: 100vh; */
+}
+
+.gallery::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
 }
 
 @media (max-width: 639px) {
@@ -364,7 +371,7 @@ html:not(.lazy-images) .gallery-item a:after {
     -o-transform: rotate(180deg);
     -moz-transform: rotate(180deg);
     -webkit-transform: rotate(180deg);
-    color: var(--color0a);
+    color: var(--color1);
     /* color: #35C4F0; */
 }
 

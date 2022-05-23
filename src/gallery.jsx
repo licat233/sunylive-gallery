@@ -44,8 +44,6 @@ export default function Gallery(props) {
     const collectRef = useRef();
     const imageStorage = useRef([]);
     const navigationContainer = useRef();
-    const scrollView = useRef();
-    // const background = useRef(null);
     const loadRef = useRef();
     const [localImages, setLocalImages, deleteLocalImages] = useLocalStorage('collectImages', []);
     const collectImages = useRef([]);
@@ -73,11 +71,6 @@ export default function Gallery(props) {
     // const navOffset = useRef(-1);
     //监听nav tab位置
     const onNavTabPosition = () => {
-        // if (navOffset.current === -1) {
-        //     navOffset.current = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - navRef.current.offsetHeight;
-        // };
-
-        // if (!navRef.current || !navBoxRef.current) return
         if (!navRef.current) return
         const headerHeight = navRef.current.offsetHeight;
         //滚动条距离顶部的距离
@@ -91,11 +84,6 @@ export default function Gallery(props) {
         }
     }
 
-    // useEffect(() => {
-    //     //偏移量 = nav的高度
-    //     navOffset.current = navBoxRef.current.offsetHeight + 40;
-    // }, [])
-
     //语法糖，获取元素top值
     const getElementTop = (element) => {
         var actualTop = element.offsetTop;
@@ -107,46 +95,6 @@ export default function Gallery(props) {
         return actualTop;
     }
 
-    // const lastScrollTop = useRef(-1);
-    //语法糖，滚动动画
-    // const toScroll = (scrollTop, direction) => {
-
-    //     //当前位置
-    //     let currentTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
-    //     //判断是否没有变化
-    //     if (lastScrollTop.current === currentTop) {
-    //         return;
-    //     }
-    //     lastScrollTop.current = currentTop
-    //     //计算
-    //     const dif = scrollTop - currentTop;
-    //     if (dif > 0) {
-    //         if (direction && direction === "top") {
-    //             window.scrollTo(0, scrollTop)
-    //             return;
-    //         }
-    //         //如果大于0，说明当前滑动条在目标上方，需要往下滚动，++
-    //         currentTop += 40;
-    //         direction = "bottom"
-    //     } else if (dif < 0) {
-    //         if (direction && direction === "bottom") {
-    //             window.scrollTo(0, scrollTop)
-    //             return;
-    //         }
-    //         //如果小于0，说明当前滑动条在目标下方，需要往上滚动，--
-    //         currentTop -= 40;
-    //         direction = "top"
-    //     } else {
-    //         window.scrollTo(0, scrollTop)
-    //         return;
-    //     }
-
-    //     window.scrollTo(0, currentTop)
-    //     setTimeout(() => {
-    //         toScroll(scrollTop, direction)
-    //     })
-    // }
-
     //滑动到gallery
     const toPhotoSwipe = () => {
         document.body.style.overflow = "auto";
@@ -155,19 +103,7 @@ export default function Gallery(props) {
             axis: 'y',
             duration: 400
         });
-
-        // document.body.style.overflow = "auto";
-        // galleryContainer.current.classList.add("galleryBox");
-
-        // toScroll(top); //方案一
-        // galleryContainer.current.scrollIntoView(true) //方案二
-        // smoothScroll.current.to(galleryContainer.current) //方案三
-        //综合方案，有bug
-        // if (smoothScroll.current) {
-        //     smoothScroll.current.scrollTo(top)
-        // } else {
-        //     toScroll(top)
-        // }
+        // smoothScroll.current.scrollTo(targetScroll)
     }
 
     const isReload = () => {
@@ -193,10 +129,6 @@ export default function Gallery(props) {
         if (imageStorage.current.length === 0) {
             showAlbumImages()
         }
-        // document.body.style.overflow = "auto";
-        // showCollectImages();
-        // const top = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
-        // toScroll(top);
     }
 
     // const imagesStore = useRef([]);
@@ -249,15 +181,6 @@ export default function Gallery(props) {
             lastActiveTab.current.classList.add("active");
         }
     }
-
-    // const showCollectImages = () => {
-    //     if (albumId.current === -1) {
-    //         imageStorage.current = [...collectImages.current];
-    //         setImages([...imageStorage.current]);
-    //         switchTab(collectRef.current);
-    //         return
-    //     }
-    // }
 
     const showAlbumImages = () => {
         //-1表示收藏夹
@@ -316,6 +239,7 @@ export default function Gallery(props) {
     //     const scrollHeight = el.scrollHeight;
     //     return clientHeight + scrollTop === scrollHeight;
     // }
+
 
     const loadMoreImages = () => {
         //滑动到底部，把最后一个标记一下
@@ -463,62 +387,10 @@ export default function Gallery(props) {
             }
         }
 
-        // const getFullscreenPromise = () => {
-        //     // Always resolve promise,
-        //     // as wa want to open lightbox 
-        //     // (no matter if fullscreen is supported or not)
-        //     return new Promise((resolve) => {
-        //         if (!fullscreenAPI || fullscreenAPI.isFullscreen()) {
-        //             // fullscreen API not supported, or already fullscreen
-        //             resolve();
-        //             return;
-        //         }
-
-        //         document.addEventListener(fullscreenAPI.change, (event) => {
-        //             pswpContainer.style.display = 'block';
-        //             // delay to make sure that browser fullscreen animation is finished
-        //             setTimeout(function () {
-        //                 resolve();
-        //             }, 300);
-        //         }, { once: true });
-
-        //         fullscreenAPI.request(pswpContainer);
-        //     });
-        // }
-
         const options = {
             gallery: '#gallery',
             children: 'figure',
             pswpModule: () => import('photoswipe'),
-            // initialZoomLevel: (zoomLevelObject) => {
-            //     if (isPhonePortrait()) {
-            //         return zoomLevelObject.vFill;
-            //     } else {
-            //         return zoomLevelObject.fit;
-            //     }
-            // },
-            // secondaryZoomLevel: (zoomLevelObject) => {
-            //     if (isPhonePortrait()) {
-            //         return zoomLevelObject.fit;
-            //     } else {
-            //         return 1;
-            //     }
-            // },
-            // maxZoomLevel: 1,
-            // // Add function that returns promise
-            // openPromise: getFullscreenPromise,
-
-            // // Append PhotoSwipe to our container
-            // appendToEl: fullscreenAPI ? pswpContainer : document.body,
-
-            // // disable opening/closing animations
-            // showAnimationDuration: 0,
-            // hideAnimationDuration: 0,
-
-            // Add if you're using responsive images
-            // since viewport size is unpredictable
-            // at initialization
-            preloadFirstSlide: false
         };
 
         photoswipe.current = new PhotoSwipeLightbox(options);
@@ -571,62 +443,6 @@ export default function Gallery(props) {
                     });
                 }
             });
-            //下载按钮
-            // photoswipe.current.pswp.ui.registerElement({
-            //     name: 'download-button',
-            //     order: 9,
-            //     isButton: true,
-            //     tagName: 'a',
-
-            //     // SVG with outline
-            //     html: {
-            //         isCustomSVG: true,
-            //         inner: '<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
-            //         outlineID: 'pswp__icn-download'
-            //     },
-
-            //     onInit: (el, pswp) => {
-            //         el.classList.add('btn');
-            //         el.classList.add('btn-3');
-            //         el.setAttribute('download', '');
-            //         el.setAttribute('target', '_blank');
-            //         el.setAttribute('rel', 'noopener');
-
-            //         pswp.on('change', () => {
-            //             // console.log('change');
-            //             el.href = pswp.currSlide.data.src;
-            //         });
-            //     }
-            // });
-            //导航栏，数据很庞大时，不建议用
-            // photoswipe.current.pswp.ui.registerElement({
-            //     name: 'bulletsIndicator',
-            //     className: 'pswp__bullets-indicator',
-            //     appendTo: 'wrapper',
-            //     onInit: (el, pswp) => {
-            //         const bullets = [];
-            //         let bullet;
-            //         let prevIndex = -1;
-
-            //         for (let i = 0; i < pswp.getNumItems(); i++) {
-            //             bullet = document.createElement('div');
-            //             bullet.className = 'pswp__bullet';
-            //             bullet.onclick = (e) => {
-            //                 pswp.goTo(bullets.indexOf(e.target));
-            //             };
-            //             el.appendChild(bullet);
-            //             bullets.push(bullet);
-            //         }
-
-            //         pswp.on('change', () => {
-            //             if (prevIndex >= 0) {
-            //                 bullets[prevIndex].classList.remove('pswp__bullet--active');
-            //             }
-            //             bullets[pswp.currIndex].classList.add('pswp__bullet--active');
-            //             prevIndex = pswp.currIndex;
-            //         });
-            //     }
-            // });
 
             //大屏看图时修改收藏按钮
             photoswipe.current.pswp.ui.registerElement({
@@ -660,22 +476,19 @@ export default function Gallery(props) {
         loadMoreImages();
     }
 
-    // // 初始化 locomotiveScroll
+    // 初始化 locomotiveScroll
     // const initLocomotiveScroll = () => {
     //     if (smoothScroll.current) {
     //         smoothScroll.current.update();
     //         return
     //     }
     //     smoothScroll.current = new LocomotiveScroll({
-    //         el: navigationContainer.current,
+    //         el: document.querySelector("#root"),
     //         smooth: true,
-    //         getSpeed: true,
-    //         repeat: false,
-    //         getDirection: true,
     //     });
-    //     // smoothScroll.current.on("scroll", () => {
-    //     //     onScroll()
-    //     // })
+    //     smoothScroll.current.on("scroll", () => {
+    //         onScroll()
+    //     })
     // }
 
     const initCollectImages = () => {
@@ -745,7 +558,7 @@ export default function Gallery(props) {
     }
 
     return (
-        <section ref={scrollView} >
+        <>
             <div className="navigationContainer" ref={navigationContainer}>
                 <section id="nav" className="nav" ref={navBoxRef}>
                     <div className="ruler-box">
@@ -793,14 +606,13 @@ export default function Gallery(props) {
                     </div>
                     <canvas className="background" />
                 </section>
-
             </div>
             <div className="galleryContainer galleryBox" ref={galleryContainer}>
                 {/* <canvas className="background" /> */}
                 <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
-                    {images.map((image, index) => <Picture key={image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
+                    {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
                 </div>
                 {loading()}
             </div>
-        </section>)
+        </>)
 }
