@@ -2,12 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
 import 'lazysizes';
-import LocomotiveScroll from 'locomotive-scroll';
-import "./lib/locomotive-scroll.css";
 import { writeStorage, useLocalStorage } from '@rehooks/local-storage';
 import $ from 'jquery.scrollto';
 import { requestImages, requestAlbums } from './api/api';
-import { initAlbumId, throttle, debounce, getElementTop, get_scrollTop_of_body, isReload, isElementInViewport, getContainer, getFullscreenAPI, fullscreenSVG } from './utils/utils';
+import { initAlbumId, throttle, getElementTop, get_scrollTop_of_body, isReload, isElementInViewport, getContainer, getFullscreenAPI, fullscreenSVG } from './utils/utils';
 import Footer from './footer/footer';
 import Picture from './picture';
 import "./css/navigation.css";
@@ -41,9 +39,6 @@ export default function Gallery(props) {
     const contentRef = useRef();
     const photoswipe = useRef();
 
-    const scrollView = useRef();
-    const smoothScroll = useRef(null); //平滑滚动条
-
     const initAlbums = async () => {
         if (hasAlbums.current) return;
         hasAlbums.current = true
@@ -76,16 +71,6 @@ export default function Gallery(props) {
             axis: 'y',
             duration: 400
         });
-        // smoothScroll.current.scrollTo(targetScroll)
-    }
-
-    const initScreen = () => {
-        if (isReload()) {
-            showAlbumImages();
-            contentRef.current.style.display = "block";
-        } else {
-            contentRef.current.style.display = "none";
-        }
     }
 
     //鼠标点击下滑按钮
@@ -383,9 +368,7 @@ export default function Gallery(props) {
 
     //窗口改变事件
     const onResize = () => {
-        debounce(() => {
-            autoNavSize()
-        })()
+        autoNavSize();
     }
 
     //滚动条事件
@@ -396,38 +379,26 @@ export default function Gallery(props) {
         })()
     }
 
-    /**LocomotiveScroll */
-    // 初始化 locomotiveScroll
-    const initLocomotiveScroll = () => {
-        if (smoothScroll.current) return smoothScroll.current.update();
-        if (!scrollView.current) return
-        smoothScroll.current = new LocomotiveScroll({
-            el: scrollView.current,
-            smooth: true,
-        });
-        smoothScroll.current.on("scroll", () => {
-            onScroll()
-        })
-        smoothScroll.current.init();
-        console.log("已经初始化")
+    const initContentDisplay = () => {
+        if (false && isReload()) {
+            contentRef.current.style.display = "block";
+            showAlbumImages();
+        } else {
+            contentRef.current.style.display = "none";
+        }
     }
-    useEffect(() => {
-        initLocomotiveScroll()
-    })
-    /**LocomotiveScroll end */
 
     useEffect(() => {
-        initScreen() //初始化屏幕大小
         initNavSize() //初始化nav大小
         initAlbums() //初始化相册
+        initContentDisplay() //初始化内容区
         initCollectImages() //初始化collectImages数据
         initPhotoSwipe(); //初始化photoswipe
         window.addEventListener('resize', onResize); //监听窗口变化
-        // window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
-        initLocomotiveScroll(); //初始化soomthScroll
+        window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
         return () => {
             window.removeEventListener('resize', onResize);
-            // window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('scroll', onScroll);
             photoswipe.current && photoswipe.current.destroy();
             photoswipe.current = null;
         }
@@ -452,8 +423,8 @@ export default function Gallery(props) {
     }
 
     return (
-        <section ref={scrollView} data-scroll-container>
-            <div className="navigationContainer" ref={navigationContainer} data-scroll-section>
+        <section data-scroll-container>
+            <div className="navigationContainer" ref={navigationContainer} data-scroll>
                 <section id="nav" className="nav" ref={navBoxRef}>
                     <div className="ruler-box">
                         <div className="ruler">
@@ -502,7 +473,7 @@ export default function Gallery(props) {
                 </section>
             </div>
 
-            <section ref={contentRef} className="contentContainer" data-scroll-section>
+            <section ref={contentRef} className="contentContainer" data-scroll>
                 <div className="galleryContainer galleryBox" ref={galleryContainer}>
                     {/* <canvas className="background" /> */}
                     <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
