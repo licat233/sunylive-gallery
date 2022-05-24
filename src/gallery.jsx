@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
 import 'lazysizes';
-// import LocomotiveScroll from 'locomotive-scroll';
-// import "./lib/locomotive-scroll.css";
+import LocomotiveScroll from 'locomotive-scroll';
+import "./lib/locomotive-scroll.css";
 import { writeStorage, useLocalStorage } from '@rehooks/local-storage';
 import $ from 'jquery.scrollto';
 import { requestImages, requestAlbums } from './api/api';
@@ -27,7 +27,6 @@ export default function Gallery(props) {
     const last_picture = useRef();
     const navRef = useRef();
     const navBoxRef = useRef();
-    // const smoothScroll = useRef(null); //平滑滚动条
     const reqAlbumId = useRef(-1); //请求过的相册id
     const reqPage = useRef(-1); //请求过的page
     const lastPage = useRef(99);
@@ -41,6 +40,9 @@ export default function Gallery(props) {
     const collectImages = useRef([]);
     const contentRef = useRef();
     const photoswipe = useRef();
+
+    const scrollView = useRef();
+    const smoothScroll = useRef(null); //平滑滚动条
 
     const initAlbums = async () => {
         if (hasAlbums.current) return;
@@ -346,23 +348,6 @@ export default function Gallery(props) {
         photoswipe.current.init();
     }
 
-
-
-    // 初始化 locomotiveScroll
-    // const initLocomotiveScroll = () => {
-    //     if (smoothScroll.current) {
-    //         smoothScroll.current.update();
-    //         return
-    //     }
-    //     smoothScroll.current = new LocomotiveScroll({
-    //         el: document.querySelector("#root"),
-    //         smooth: true,
-    //     });
-    //     smoothScroll.current.on("scroll", () => {
-    //         onScroll()
-    //     })
-    // }
-
     const initCollectImages = () => {
         if (!Array.isArray(localImages)) {
             deleteLocalImages([]);
@@ -411,29 +396,43 @@ export default function Gallery(props) {
         })()
     }
 
+    /**LocomotiveScroll */
+    // 初始化 locomotiveScroll
+    const initLocomotiveScroll = () => {
+        if (smoothScroll.current) return smoothScroll.current.update();
+        if (!scrollView.current) return
+        smoothScroll.current = new LocomotiveScroll({
+            el: scrollView.current,
+            smooth: true,
+        });
+        smoothScroll.current.on("scroll", () => {
+            onScroll()
+        })
+        smoothScroll.current.init();
+        console.log("已经初始化")
+    }
+    useEffect(() => {
+        initLocomotiveScroll()
+    })
+    /**LocomotiveScroll end */
+
     useEffect(() => {
         initScreen() //初始化屏幕大小
         initNavSize() //初始化nav大小
         initAlbums() //初始化相册
         initCollectImages() //初始化collectImages数据
-        // initShowAlbumImages() //初始化显示的图片
-        // onResize();
         initPhotoSwipe(); //初始化photoswipe
         window.addEventListener('resize', onResize); //监听窗口变化
-        window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
-        // initLocomotiveScroll(); //初始化LocomotiveScroll
+        // window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
+        initLocomotiveScroll(); //初始化soomthScroll
         return () => {
             window.removeEventListener('resize', onResize);
-            window.removeEventListener('scroll', onScroll);
+            // window.removeEventListener('scroll', onScroll);
             photoswipe.current && photoswipe.current.destroy();
             photoswipe.current = null;
         }
         // eslint-disable-next-line
     }, []);
-
-    // useEffect(() => {
-    //     smoothScroll.current && smoothScroll.current.update();
-    // })
 
     //设置最后一个picture
     const setLastPicture = (ele) => {
@@ -453,8 +452,8 @@ export default function Gallery(props) {
     }
 
     return (
-        <>
-            <div className="navigationContainer" ref={navigationContainer}>
+        <section ref={scrollView} data-scroll-container>
+            <div className="navigationContainer" ref={navigationContainer} data-scroll-section>
                 <section id="nav" className="nav" ref={navBoxRef}>
                     <div className="ruler-box">
                         <div className="ruler">
@@ -503,7 +502,7 @@ export default function Gallery(props) {
                 </section>
             </div>
 
-            <section ref={contentRef} className="contentContainer">
+            <section ref={contentRef} className="contentContainer" data-scroll-section>
                 <div className="galleryContainer galleryBox" ref={galleryContainer}>
                     {/* <canvas className="background" /> */}
                     <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
@@ -518,5 +517,5 @@ export default function Gallery(props) {
                     <div id="stars3"></div>
                 </div>
             </section>
-        </>)
+        </section>)
 }

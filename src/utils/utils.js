@@ -111,11 +111,14 @@ export const isScrollInBottom = (el) => {
 
 //创建pswp窗口
 export const getContainer = () => {
-    const pswpContainer = document.createElement('div');
+    let pswpContainer = document.querySelector("#pswpContainer");
+    if (pswpContainer) return pswpContainer
+    pswpContainer = document.createElement('div');
     pswpContainer.style.background = '#000';
     pswpContainer.style.width = '100%';
     pswpContainer.style.height = '100%';
     pswpContainer.style.display = 'none';
+    pswpContainer.id = "pswpContainer";
     document.body.appendChild(pswpContainer);
     return pswpContainer;
 }

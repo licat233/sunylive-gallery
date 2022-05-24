@@ -29,7 +29,7 @@ export default function Picture(props) {
     const mark = width < height ? "vertical" : "horizontal";
 
     return <>
-        <figure onMouseEnter={onFocus} onMouseLeave={onBlur} className={"gallery-item " + mark} itemProp="associatedMedia" id={id} itemScope="" itemType="http://schema.org/ImageObject">
+        <figure data-scroll onMouseEnter={onFocus} onMouseLeave={onBlur} className={"gallery-item " + mark} itemProp="associatedMedia" id={id} itemScope="" itemType="http://schema.org/ImageObject">
             <a href={url}
                 itemProp="contentUrl"
                 data-size={size}
