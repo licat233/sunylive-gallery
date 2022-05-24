@@ -7,21 +7,12 @@ import 'lazysizes';
 import { writeStorage, useLocalStorage } from '@rehooks/local-storage';
 import $ from 'jquery.scrollto';
 import { requestImages, requestAlbums } from './api/api';
+import { initAlbumId, throttle, debounce, getElementTop, get_scrollTop_of_body, isReload, isElementInViewport, getContainer, getFullscreenAPI, fullscreenSVG } from './utils/utils';
 import Footer from './footer/footer';
 import Picture from './picture';
 import "./css/navigation.css";
 import './css/gallery.css';
 import './css/star.css';
-
-const initAlbumId = () => {
-    const album_id = window.sessionStorage.getItem("album_id");
-    if (album_id) {
-        return +album_id
-    } else {
-        window.sessionStorage.setItem("album_id", -1)
-        return -1;
-    }
-}
 
 export default function Gallery(props) {
     const slogan_cn = "中国高端工匠木作代表品牌";
@@ -49,6 +40,7 @@ export default function Gallery(props) {
     const [localImages, setLocalImages, deleteLocalImages] = useLocalStorage('collectImages', []);
     const collectImages = useRef([]);
     const contentRef = useRef();
+    const photoswipe = useRef();
 
     const initAlbums = async () => {
         if (hasAlbums.current) return;
@@ -57,44 +49,20 @@ export default function Gallery(props) {
         if (Array.isArray(data)) setAlbums(data);
     }
 
-    //滚动条距离顶部的距离
-    const get_scrollTop_of_body = () => {
-        let scrollTop;
-        if (typeof window.pageYOffset != 'undefined') {//pageYOffset指的是滚动条顶部到网页顶部的距离
-            scrollTop = window.pageYOffset;
-        } else if (typeof document.compatMode !== 'undefined' && document.compatMode !== 'BackCompat') {
-            scrollTop = document.documentElement.scrollTop;
-        } else if (typeof document.body != 'undefined') {
-            scrollTop = document.body.scrollTop;
-        }
-        return scrollTop;
-    }
-
-    // const navOffset = useRef(-1);
     //监听nav tab位置
     const onNavTabPosition = () => {
         if (!navRef.current) return
         const headerHeight = navRef.current.offsetHeight;
         //滚动条距离顶部的距离
         // const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollTop = get_scrollTop_of_body();
         //【元素顶部】距离dom顶部的距离 = 父盒子到offsetParent顶部的距离 + 父盒子高度 - 自身高度
         let offset = navBoxRef.current.offsetTop + navBoxRef.current.offsetHeight - headerHeight;
-        if (get_scrollTop_of_body() > offset) {
+        if (scrollTop > offset) {
             navRef.current.classList.add("nav-container--top-second");
         } else {
             navRef.current.classList.remove("nav-container--top-second");
         }
-    }
-
-    //语法糖，获取元素top值
-    const getElementTop = (element) => {
-        var actualTop = element.offsetTop;
-        var current = element.offsetParent;
-        while (current !== null) {
-            actualTop += current.offsetTop;
-            current = current.offsetParent;
-        }
-        return actualTop;
     }
 
     //滑动到gallery
@@ -109,26 +77,16 @@ export default function Gallery(props) {
         // smoothScroll.current.scrollTo(targetScroll)
     }
 
-    const isReload = () => {
-        if (window.name === "sunylive") {
-            return true
-        }
-        return false
-    }
-
     const initScreen = () => {
         if (isReload()) {
+            showAlbumImages();
             contentRef.current.style.display = "block";
         } else {
             contentRef.current.style.display = "none";
         }
     }
 
-    useEffect(() => {
-        initScreen()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
+    //鼠标点击下滑按钮
     const onMouseScroll = () => {
         toPhotoSwipe()
         //展现相册图片
@@ -180,6 +138,7 @@ export default function Gallery(props) {
         setShowLoading(false);
     }
 
+    //切换到指定tab
     const switchTab = (target) => {
         if (lastActiveTab.current !== target) {
             lastActiveTab.current && lastActiveTab.current.classList.remove("active");
@@ -188,6 +147,7 @@ export default function Gallery(props) {
         }
     }
 
+    //显示当前相册图片
     const showAlbumImages = () => {
         //-1表示收藏夹
         if (albumId.current === -1) {
@@ -226,29 +186,7 @@ export default function Gallery(props) {
         showAlbumImages()
     }
 
-
-    //语法糖，判断元素是否在窗口内
-    const isElementInViewport = (el) => {
-        //获取元素是否在可视区域
-        var rect = el.getBoundingClientRect();
-        return (
-            rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <=
-            (window.innerHeight || document.documentElement.clientHeight) &&
-            rect.right <=
-            (window.innerWidth || document.documentElement.clientWidth)
-        );
-    }
-    //语法糖，判断滚动条是否已到底部
-    // const isScrollInBottom = (el) => {
-    //     const clientHeight = el.clientHeight;
-    //     const scrollTop = el.scrollTop;
-    //     const scrollHeight = el.scrollHeight;
-    //     return clientHeight + scrollTop === scrollHeight;
-    // }
-
-
+    //加载更多图片
     const loadMoreImages = () => {
         //滑动到底部，把最后一个标记一下
         //相较监听滚动条位置的最佳方案
@@ -261,70 +199,7 @@ export default function Gallery(props) {
         }
     }
 
-    //photoSwipe的工具
-    // const isPhonePortrait = () => {
-    //     return window.matchMedia('(max-width: 600px) and (orientation: portrait)').matches;
-    // }
-
-    const getContainer = () => {
-        const pswpContainer = document.createElement('div');
-        pswpContainer.style.background = '#000';
-        pswpContainer.style.width = '100%';
-        pswpContainer.style.height = '100%';
-        pswpContainer.style.display = 'none';
-        document.body.appendChild(pswpContainer);
-        return pswpContainer;
-    }
-    const getFullscreenAPI = () => {
-        let api;
-        let enterFS;
-        let exitFS;
-        let elementFS;
-        let changeEvent;
-        let errorEvent;
-
-        if (document.documentElement.requestFullscreen) {
-            enterFS = 'requestFullscreen';
-            exitFS = 'exitFullscreen';
-            elementFS = 'fullscreenElement';
-            changeEvent = 'fullscreenchange';
-            errorEvent = 'fullscreenerror';
-        } else if (document.documentElement.webkitRequestFullscreen) {
-            enterFS = 'webkitRequestFullscreen';
-            exitFS = 'webkitExitFullscreen';
-            elementFS = 'webkitFullscreenElement';
-            changeEvent = 'webkitfullscreenchange';
-            errorEvent = 'webkitfullscreenerror';
-        }
-
-        if (enterFS) {
-            api = {
-                request: function (el) {
-                    if (enterFS === 'webkitRequestFullscreen') {
-                        el[enterFS](Element.ALLOW_KEYBOARD_INPUT);
-                    } else {
-                        el[enterFS]();
-                    }
-                },
-
-                exit: function () {
-                    return document[exitFS]();
-                },
-
-                isFullscreen: function () {
-                    return document[elementFS];
-                },
-
-                change: changeEvent,
-                error: errorEvent
-            };
-        }
-
-        return api;
-    };
-
-
-
+    //初始化收藏按钮
     const initCollectBtn = (pswp, currentIndex, btnE) => {
         const btnEl = btnE || pswp.element.querySelector(".pswp__button--collect");
         const index = currentIndex ?? pswp.options.index;
@@ -341,7 +216,8 @@ export default function Gallery(props) {
         }
     }
 
-    const changeCollectBtn = (btnE, currentIndex) => {
+    //改变收藏按钮样式
+    const changeCollectBtnStyle = (btnE, currentIndex) => {
         const index = currentIndex ?? btnE.dataset.index;
         const image = imageStorage.current[index];
         if (!image) return;
@@ -365,11 +241,8 @@ export default function Gallery(props) {
         writeStorage('collectImages', collectImages.current);
     }
 
-
-    const photoswipe = useRef();
     const initPhotoSwipe = () => {
         if (photoswipe.current) return;
-        const fullscreenSVG = '<svg aria-hidden="true" class="pswp__icn" viewBox="0 0 32 32" width="32" height="32"><use class="pswp__icn-shadow" xlink:href="#pswp__icn-fullscreen-exit"/><use class="pswp__icn-shadow" xlink:href="#pswp__icn-fullscreen-request"/><path d="M8 8v6.047h2.834v-3.213h3.213V8h-3.213zm9.953 0v2.834h3.213v3.213H24V8h-2.834zM8 17.953V24h6.047v-2.834h-3.213v-3.213zm13.166 0v3.213h-3.213V24H24v-6.047z" id="pswp__icn-fullscreen-request"/><path d="M11.213 8v3.213H8v2.834h6.047V8zm6.74 0v6.047H24v-2.834h-3.213V8zM8 17.953v2.834h3.213V24h2.834v-6.047h-2.834zm9.953 0V24h2.834v-3.213H24v-2.834h-3.213z" id="pswp__icn-fullscreen-exit" style="display:none"/></svg>';
         const fullscreenAPI = getFullscreenAPI();
         const pswpContainer = getContainer();
         // Toggle full-screen mode function
@@ -425,7 +298,7 @@ export default function Gallery(props) {
                     initCollectBtn(pswp, null, el);
                 },
                 onClick: (event, el) => {
-                    changeCollectBtn(el);
+                    changeCollectBtnStyle(el);
                 }
             });
             //全屏按钮
@@ -473,14 +346,7 @@ export default function Gallery(props) {
         photoswipe.current.init();
     }
 
-    // const onResize = () => {
-    //     onNavTabPosition()
-    // }
 
-    const onScroll = () => {
-        onNavTabPosition();
-        loadMoreImages();
-    }
 
     // 初始化 locomotiveScroll
     // const initLocomotiveScroll = () => {
@@ -506,13 +372,7 @@ export default function Gallery(props) {
         }
     }
 
-    const initShowAlbumImages = () => {
-        //如果是刷新页面，则显示图片
-        if (isReload()) {
-            showAlbumImages()
-        }
-    }
-
+    //渲染导航栏
     const renderNavTab = () => {
         return <>
             <div className={albumId.current === -1 ? "nav-tab active" : "nav-tab"} data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
@@ -523,23 +383,47 @@ export default function Gallery(props) {
         </>
     }
 
+    //初始化nav大小
     const initNavSize = () => {
         navBoxRef.current.style.width || (navBoxRef.current.style.width = window.innerWidth + "px");
         navBoxRef.current.style.height || (navBoxRef.current.style.height = window.innerHeight + "px");
     }
 
+    //自适应nav大小
+    const autoNavSize = () => {
+        if (navBoxRef.current.offsetWidth === window.innerWidth) return;
+        navBoxRef.current.style.width = window.innerWidth + "px";
+        navBoxRef.current.style.height = window.innerHeight + "px";
+    }
+
+    //窗口改变事件
+    const onResize = () => {
+        debounce(() => {
+            autoNavSize()
+        })()
+    }
+
+    //滚动条事件
+    const onScroll = () => {
+        onNavTabPosition();
+        throttle(() => {
+            loadMoreImages();
+        })()
+    }
+
     useEffect(() => {
-        initNavSize()
+        initScreen() //初始化屏幕大小
+        initNavSize() //初始化nav大小
         initAlbums() //初始化相册
         initCollectImages() //初始化collectImages数据
-        initShowAlbumImages() //初始化显示的图片
+        // initShowAlbumImages() //初始化显示的图片
         // onResize();
         initPhotoSwipe(); //初始化photoswipe
-        // window.addEventListener('resize', onResize); //监听窗口变化
+        window.addEventListener('resize', onResize); //监听窗口变化
         window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
         // initLocomotiveScroll(); //初始化LocomotiveScroll
         return () => {
-            // window.removeEventListener('resize', onResize);
+            window.removeEventListener('resize', onResize);
             window.removeEventListener('scroll', onScroll);
             photoswipe.current && photoswipe.current.destroy();
             photoswipe.current = null;
