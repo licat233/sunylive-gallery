@@ -44,7 +44,7 @@ export async function requestImages(req) {
     try {
         const resp = await axios(url, { params });
         if (resp.status === 200) {
-            console.log(resp)
+            // console.log(resp)
             if (resp.data.status) {
                 const images = resp.data.data.images;
                 if (images) return images;

@@ -12,6 +12,10 @@ import "./css/navigation.css";
 import './css/gallery.css';
 import './css/star.css';
 
+// import BScroll from '@better-scroll/core'
+// import MouseWheel from '@better-scroll/mouse-wheel'
+// BScroll.use(MouseWheel)
+
 export default function Gallery(props) {
     const slogan_cn = "中国高端工匠木作代表品牌";
     const slogan_en = "Representative brand of Chinese high-end craftsman woodwork";
@@ -151,6 +155,7 @@ export default function Gallery(props) {
 
     //导航栏点击事件
     const clickNav = (e) => {
+        // console.log(e.target)
         //滑动到gallery区域
         toPhotoSwipe();
         if (typeof e.target.dataset.id === "undefined") return console.log("获取相册id失败");
@@ -345,13 +350,48 @@ export default function Gallery(props) {
     //渲染导航栏
     const renderNavTab = () => {
         return <>
-            <div className={albumId.current === -1 ? "nav-tab active" : "nav-tab"} data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
-            {albums.map((album, index) => {
-                const name = albumId.current === album.id ? "nav-tab active" : "nav-tab";
-                return <div className={name} data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
-            })}
+            <div className="nav-container" ref={navRef}>
+                <div className={albumId.current === -1 ? "nav-tab active" : "nav-tab"} data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
+                {albums.map((album, index) => {
+                    const name = albumId.current === album.id ? "nav-tab active" : "nav-tab";
+                    return <div className={name} data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
+                })}
+                <span className="nav-tab-slider"></span>
+            </div>
         </>
     }
+
+    // const navScroll = useRef();
+    // const navtabTemplate = () => {
+    //     return (<>
+    //         <div className="newNavTab" ref={navRef}>
+    //             <div className="mouse-wheel-wrapper" ref={navScroll} >
+    //                 <div className="mouse-wheel-content">
+    //                     <div className={"nav-tab mouse-wheel-item " + (albumId.current === -1 ? "active" : "")} data-id={-1} ref={collectRef} onClick={clickNav} key="my-collect">收藏</div>
+    //                     {albums.map((album, index) => {
+    //                         return <div className={"nav-tab mouse-wheel-item " + (album.id === albumId.current ? "active" : "")} data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
+    //                     })}
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     </>)
+    // }
+
+    // const navBS = useRef(null);
+    // const initNavScroll = () => {
+    //     if (navBS.current)  return //navBS.current.refresh();
+
+    //     navBS.current = new BScroll(navScroll.current, {
+    //         scrollX: true,
+    //         scrollY: false,
+    //         mouseWheel: true
+    //     })
+    // }
+    // useEffect(() => {
+    //     if (albums.length !== 0) {
+    //         initNavScroll(); //初始化滑动条
+    //     }
+    // }, [albums])
 
     //初始化nav大小
     const initNavSize = () => {
@@ -423,8 +463,8 @@ export default function Gallery(props) {
     }
 
     return (
-        <section data-scroll-container>
-            <div className="navigationContainer" ref={navigationContainer} data-scroll>
+        <section >
+            <div className="navigationContainer" ref={navigationContainer}>
                 <section id="nav" className="nav" ref={navBoxRef}>
                     <div className="ruler-box">
                         <div className="ruler">
@@ -465,19 +505,19 @@ export default function Gallery(props) {
                             </svg>
                         </div>
                     </div>
-                    <div className="nav-container" ref={navRef}>
-                        {renderNavTab()}
-                        <span className="nav-tab-slider"></span>
-                    </div>
+                    {/* {navtabTemplate()} */}
+                    {renderNavTab()}
                     <canvas className="background" />
                 </section>
             </div>
 
-            <section ref={contentRef} className="contentContainer" data-scroll>
-                <div className="galleryContainer galleryBox" ref={galleryContainer}>
+            <section ref={contentRef} className="contentContainer">
+                <div className="galleryContainer galleryBox gallery-wrapper" ref={galleryContainer}>
                     {/* <canvas className="background" /> */}
-                    <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
-                        {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
+                    <div className="gallery-content">
+                        <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
+                            {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
+                        </div>
                     </div>
                     {loading()}
                 </div>
@@ -490,3 +530,4 @@ export default function Gallery(props) {
             </section>
         </section>)
 }
+// 
