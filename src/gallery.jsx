@@ -11,6 +11,8 @@ import Picture from './picture';
 import "./css/navigation.css";
 import './css/gallery.css';
 import './css/star.css';
+import './css/share.css';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 // import BScroll from '@better-scroll/core'
 // import MouseWheel from '@better-scroll/mouse-wheel'
@@ -462,6 +464,60 @@ export default function Gallery(props) {
         )
     }
 
+    const genShareLink = () => {
+        const ids = collectImages.current.map(img => img.id)
+        const hashValue = "#collect=" + ids.join("-");
+        return "https://sunylive.cc" + hashValue;
+    }
+    const copyState = useRef(false);
+    const [shareLink, setShareLink] = useState(genShareLink());
+    const [collectNum, setCollectNum] = useState(collectImages.current.length);
+    const shareRef = useRef(null);
+    const closeRef = useRef(null);
+    const shareStatus = useRef(false);
+
+    const onShare = () => {
+        setCollectNum(collectImages.current.length)
+        const link = genShareLink();
+
+        setShareLink(link)
+        if (shareStatus.current) {
+            shareRef.current.classList.remove("active")
+            closeRef.current.classList.remove("active")
+        } else {
+            shareRef.current.classList.add("active")
+            closeRef.current.classList.add("active")
+        }
+        shareStatus.current = !shareStatus.current
+    }
+
+    const shareTemplate = () => {
+        return (
+            <div className="share-content">
+                <div className="share" ref={shareRef}>
+                    <div className="toggle" onClick={onShare}><span>分享收藏</span></div>
+                    <button type="button" className="close" ref={closeRef} onClick={onShare}>
+                        <span className="bar"></span>
+                        <span className="bar"></span>
+                    </button>
+                    <div className="content">
+                        <div className="text">
+                            <ul>
+                                <li>收藏数量 <span>{collectNum}</span></li>
+                            </ul>
+                            <p className="sharelink">{shareLink}</p>
+                            <CopyToClipboard text="hello"
+                                onCopy={() => copyState.current = true}>
+                                <span className="sharelinkBtn">Copy Share URL</span>
+                            </CopyToClipboard>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <section >
             <div className="navigationContainer" ref={navigationContainer}>
@@ -514,6 +570,9 @@ export default function Gallery(props) {
             <section ref={contentRef} className="contentContainer">
                 <div className="galleryContainer galleryBox gallery-wrapper" ref={galleryContainer}>
                     {/* <canvas className="background" /> */}
+                    <div className="share-container">
+                        {shareTemplate()}
+                    </div>
                     <div className="gallery-content">
                         <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
                             {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}

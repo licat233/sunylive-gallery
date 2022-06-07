@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { popup } from "../lib/popup";
 
 function showError(msg) {
-    const alertMsg = new popup.AlertClass();
+    const alertMsg = new window.AlertClass();
     alertMsg.show({
-        title: '错误!!',
+        title: '加载错误，请刷新网页或者稍后重试!!',
         content: msg,
         onHide: function () {
             showError(msg);
@@ -12,13 +11,23 @@ function showError(msg) {
     })
 }
 
+function baseUrl() {
+    const nowHost = window.location.host
+    if (!nowHost) return "https://www.sunylive.cc";
+    const index = nowHost.search(":");
+    if (index === -1) {
+        return "";
+    }
+    return "https://www.sunylive.cc";
+}
+
 //返回一个数组
 export async function requestAlbums() {
-    const url = "https://img.catli.net/api/v1/share/albums";
+    const url = baseUrl() + "/api/v1/share/albums";
     try {
         const resp = await axios(url);
         if (resp.status === 200) {
-            if(resp.data.status){
+            if (resp.data.status) {
                 const albums = resp.data.data.data
                 if (Array.isArray(albums)) {
                     return albums;
@@ -34,7 +43,7 @@ export async function requestAlbums() {
 
 //返回一个对象
 export async function requestImages(req) {
-    const url = "https://img.catli.net/api/v1/share/images";
+    const url = baseUrl() + "/api/v1/share/images";
     const params = {
         page: req.page || 1,
         order: req.order || "earliest",

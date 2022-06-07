@@ -2,6 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './css/index.css';
 import App from './App';
+import "./lib/popup";
+import disableDevtool from 'disable-devtool';
+
+function isDev() {
+  const nowHost = window.location.host;
+  if (!nowHost) return true;
+  const index = nowHost.search(":");
+  return index !== -1
+}
+
+isDev() || disableDevtool();
 
 // import reportWebVitals from './reportWebVitals';
 // import 'animate.css';

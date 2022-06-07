@@ -1,6 +1,6 @@
 import './css/App.css';
 import Gallery from './gallery';
-import './css/other.css';
+// import './css/other.css';
 import './css/star.css';
 
 function App() {

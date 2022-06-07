@@ -1,12 +1,18 @@
-// window.AlertClass = AlertClass;
-// window.ConfirmClass = ConfirmClass;
-// window.ToastClass = ToastClass;
+window.AlertClass = AlertClass;
+window.ConfirmClass = ConfirmClass;
+window.ToastClass = ToastClass;
 
-export const popup = {
-    AlertClass,
-    ConfirmClass,
-    ToastClass,
-}
+// export const popup = {
+//     AlertClass,
+//     ConfirmClass,
+//     ToastClass,
+// }
+
+// export {
+//     AlertClass,
+//     ConfirmClass,
+//     ToastClass,
+// }
 
 
 // 组件样式，引入js自动引入
@@ -17,7 +23,7 @@ window.onload = function () {
         'background: rgba(0,0,0,.3);}' +
         '.component_toast {' +
         'position: relative;top: 30%;margin: 0 auto;min-width: 200px;width: 50%;max-width: 300px;' +
-        'padding: 10px;background: #fff;text-align: center;border-radius: 5px;}' +
+        'padding: 10px;background: rgba(255,255,255,0.8);text-align: center;border-radius: 5px;}' +
         '.component_dialog {' +
         'position: fixed;z-index: 9999;min-width: 300px;top: 50%;left: 50%;' +
         '-webkit-transform: translate(-50%, -50%);transform: translate(-50%, -50%);background-color: #fafafc;' +

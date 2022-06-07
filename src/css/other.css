@@ -1,6 +1,6 @@
-button {
+/* button {
     margin: 20px;
-}
+} */
 
 .custom-btn {
     width: 130px;
@@ -943,61 +943,4 @@ button {
 
 .btn-a-5 {
     background-image: linear-gradient(to right, #ffecd2 0%, #fcb69f 51%, #ffecd2 100%);
-}
-
-/** 定义photoSwipe样式*/
-
-/* 收藏按钮 */
-button.pswp__button--collect {
-    font-size: 16px;
-    color: #fff;
-    margin-right: 1em;
-    border-radius: 8px;
-    min-width: 50px;
-}
-
-/* 缩放 指示器 */
-.pswp__zoom-level-indicator {
-    /* background: var(--color0); */
-    font-size: 16px;
-    line-height: 1;
-    font-weight: bold;
-    color: #fff;
-    width: 50px;
-    height: auto;
-    align-self: center;
-    padding: 10px 5px;
-    border-radius: 100%;
-    text-align: center;
-}
-
-/* 添加下载 */
-button.pswp__button--test-button {
-    /* background: var(--color0) !important;
-    font-size: 20px;
-    color: #fff; */
-}
-
-/* 添加导航指示器 */
-.pswp__bullets-indicator {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translate(-50%, 0);
-}
-
-.pswp__bullet {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #fff;
-    margin: 0 5px;
-}
-
-.pswp__bullet--active {
-    background: var(--color0);
 }
