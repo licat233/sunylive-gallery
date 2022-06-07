@@ -5,6 +5,7 @@
     line-height: 24px;
     color: #737373;
     word-break: break-all;
+    /* z-index: 11; */
 }
 
 .site-footer hr {

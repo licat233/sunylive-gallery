@@ -1,10 +1,15 @@
 @import 'https://fonts.googleapis.com/css?family=Source+Sans+Pro:600,700';
 
 .share-container {
-    width: 100%;
-    display: flex;
-    margin: 10px 0;
-    justify-content: center;
+    // width: 100%;
+    // display: flex;
+    // margin: 10px 0;
+    // justify-content: center;
+
+    position: fixed;
+    right: 10px;
+    bottom: 20%;
+    z-index: 10;
 
     .share-content {}
 
@@ -28,15 +33,16 @@
     }
 
     ul li {
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 1);
+        line-height: 30px;
     }
 
     ul li span {
         float: right;
-        margin-top: 9px;
+        // margin-top: 9px;
         font-size: 13px !important;
-        border: 2px solid rgba(255, 255, 255, 0.7);
-        display: inline-block;
+        border: 2px solid rgba(255, 255, 255, 1);
+        display: block;
         text-align: center;
         height: 30px;
         font-weight: bold;
@@ -84,11 +90,12 @@
     }
 
     .share {
-        display: inline-block;
-        width: 100px;
-        height: 40px;
+        // display: inline-block;
+        opacity: 0.6;
+        width: 50px;
+        height: 50px;
         overflow: hidden;
-        line-height: 40px;
+        line-height: 25px;
         border-radius: 4px;
         position: relative;
         background-color: var(--color0a);
@@ -107,6 +114,7 @@
     }
 
     .share.active {
+        opacity: 1;
         width: 350px;
         height: 300px;
         min-height: 70px;
@@ -166,6 +174,13 @@
         border-bottom-right-radius: 25px;
     }
 
+    .share .content .text small {
+        color: #fff;
+    }
+    .share .content .text p {
+        color: #fff;
+    }
+
     .share .content .text {
         transition: 300ms all;
         opacity: 0;
@@ -188,11 +203,23 @@
         color: #FFF;
     }
 
+    .share .content .text .sharelinkBtn:active {
+        border: 2px solid var(--color0a);
+        color: var(--color0a);
+        // background-color: var(--color1a);
+    }
+
+    .shareQR{
+        width: 100%;
+        text-align: center;
+        height: 100px;
+    }
+
     .sharelink {
         color: #FFF;
         user-select: text;
-        min-height: 120px;
-        max-height: 120px;
+        // min-height: 120px;
+        // max-height: 120px;
         word-wrap: break-word;
         word-break: break-all;
         margin: 0;

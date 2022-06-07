@@ -13,6 +13,9 @@ import './css/gallery.css';
 import './css/star.css';
 import './css/share.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import QRious from 'qrious';
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
 
 // import BScroll from '@better-scroll/core'
 // import MouseWheel from '@better-scroll/mouse-wheel'
@@ -402,8 +405,10 @@ export default function Gallery(props) {
     }
 
     //自适应nav大小
+    const cacheWidth = useRef(window.innerWidth)
     const autoNavSize = () => {
-        if (navBoxRef.current.offsetWidth === window.innerWidth) return;
+        if (cacheWidth.current === window.innerWidth) return
+        cacheWidth.current = window.innerWidth
         navBoxRef.current.style.width = window.innerWidth + "px";
         navBoxRef.current.style.height = window.innerHeight + "px";
     }
@@ -467,7 +472,7 @@ export default function Gallery(props) {
     const genShareLink = () => {
         const ids = collectImages.current.map(img => img.id)
         const hashValue = "#collect=" + ids.join("-");
-        return "https://sunylive.cc" + hashValue;
+        return window.location.protocol + "//" + window.location.host + hashValue;
     }
     const copyState = useRef(false);
     const [shareLink, setShareLink] = useState(genShareLink());
@@ -475,7 +480,7 @@ export default function Gallery(props) {
     const shareRef = useRef(null);
     const closeRef = useRef(null);
     const shareStatus = useRef(false);
-
+    const qrcanvasRef = useRef(null);
     const onShare = () => {
         setCollectNum(collectImages.current.length)
         const link = genShareLink();
@@ -491,7 +496,36 @@ export default function Gallery(props) {
         shareStatus.current = !shareStatus.current
     }
 
+    const copyRef = useRef(null);
+    const tippyRef = useRef(null);
+    const copyTips = () => {
+        tippyRef.current = tippy(copyRef.current, {
+            // default
+            content: '复制成功',
+            trigger: 'click',
+            placement: 'bottom',
+            animation: 'fade',
+            arrow: true,
+            theme: 'light',
+            delay: [0, 800], // ms
+        });
+    }
+
+    useEffect(() => {
+        if (!tippyRef.current) {
+            copyTips()
+        }
+    }, [])
+
+    const qrRef = useRef(null);
     const shareTemplate = () => {
+        if (!qrRef.current && qrcanvasRef.current) {
+            qrRef.current = new QRious({
+                element: qrcanvasRef.current,
+                value: shareLink
+            });
+        }
+
         return (
             <div className="share-content">
                 <div className="share" ref={shareRef}>
@@ -504,19 +538,23 @@ export default function Gallery(props) {
                         <div className="text">
                             <ul>
                                 <li>收藏数量 <span>{collectNum}</span></li>
+                                <li></li>
                             </ul>
+
+                            <div className="shareQR"><canvas ref={qrcanvasRef}></canvas></div>
                             <p className="sharelink">{shareLink}</p>
-                            <CopyToClipboard text="hello"
+                            <CopyToClipboard text={shareLink}
                                 onCopy={() => copyState.current = true}>
-                                <span className="sharelinkBtn">Copy Share URL</span>
+                                <span className="sharelinkBtn" ref={copyRef}>复制分享链接</span>
                             </CopyToClipboard>
                         </div>
-
                     </div>
                 </div>
             </div>
         )
     }
+
+
 
     return (
         <section >

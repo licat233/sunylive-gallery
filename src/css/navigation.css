@@ -80,10 +80,6 @@
     overflow: hidden;
 }
 
-body {
-    /* overflow: hidden; */
-}
-
 .unblockScreen {
     overflow: auto;
 }
@@ -96,6 +92,7 @@ body {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    z-index: 11;
 }
 
 .nav {
