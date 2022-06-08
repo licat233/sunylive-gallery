@@ -60,9 +60,10 @@ export default function Gallery(props) {
         let hash = window.location.hash
         if (!hash) return;
         hash = hash.substring(1);
-        const ids = hash.split("|");
+        const arr = hash.split("|");
         //检查id是否都符合要求
-        if (ids.some(id => Number(id).toString() === 'NaN')) return;
+        if (arr.some(id => Number(id).toString() === 'NaN')) return;
+        const ids = arr.map(id=>Number(id));
         //请求数据
         requestImgs({ ids }).then(images => {
             console.log(images);
