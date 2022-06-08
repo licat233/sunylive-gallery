@@ -9,9 +9,7 @@
     position: fixed;
     right: 10px;
     bottom: 20%;
-    z-index: 10;
-
-    .share-content {}
+    z-index: 20;
 
     *,
     *::before,
@@ -106,6 +104,10 @@
         box-shadow: 0px 5px 3px 0px rgba(0, 0, 0, 0.35);
     }
 
+    .share:hover{
+        opacity: 1;
+    }
+
     .share .toggle {
         color: #FFF;
         cursor: pointer;
@@ -119,6 +121,7 @@
         height: 300px;
         min-height: 70px;
         border-radius: 25px;
+        background-image: linear-gradient(180deg,var(--color0a) 50%,var(--color2a) 50%);
         transition: width 285ms cubic-bezier(0.4, 0, 0.2, 1) 0.1s, height 325ms cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
         -webkit-box-shadow: 0px 5px 3px 4px rgba(0, 0, 0, 0.25);
         -moz-box-shadow: 0px 5px 3px 4px rgba(0, 0, 0, 0.25);
@@ -196,17 +199,41 @@
         border-radius: 25px;
         border: 2px solid rgba(255, 255, 255, 0.7);
         color: #fff;
+        animation: tada 0s;
     }
 
     .share .content .text .sharelinkBtn:hover {
-        border: 2px solid #FFF;
-        color: #FFF;
+        border: 2px solid var(--color0a);
+        color: var(--color0a);
+        animation-duration: 1s;
     }
 
     .share .content .text .sharelinkBtn:active {
-        border: 2px solid var(--color0a);
-        color: var(--color0a);
-        // background-color: var(--color1a);
+        animation: none;
+    }
+
+    .copysuccess{
+        border: 2px solid var(--color0a) !important;
+        color: var(--color0a) !important;
+        background-color: var(--color1a) !important;
+    }
+
+    @keyframes tada {
+        from {
+            transform: scale3d(1, 1, 1)
+        }
+        10%, 20% {
+            transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg)
+        }
+        30%, 50%, 70%, 90% {
+            transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg)
+        }
+        40%, 60%, 80% {
+            transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg)
+        }
+        to {
+            transform: scale3d(1, 1, 1)
+        }
     }
 
     .shareQR{

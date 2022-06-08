@@ -4,7 +4,7 @@ import 'photoswipe/style.css';
 import 'lazysizes';
 import { writeStorage, useLocalStorage } from '@rehooks/local-storage';
 import $ from 'jquery.scrollto';
-import { requestImages, requestAlbums } from './api/api';
+import { requestImages, requestAlbums, requestImgs } from './api/api';
 import { initAlbumId, throttle, getElementTop, get_scrollTop_of_body, isReload, isElementInViewport, getContainer, getFullscreenAPI, fullscreenSVG } from './utils/utils';
 import Footer from './footer/footer';
 import Picture from './picture';
@@ -14,8 +14,8 @@ import './css/star.css';
 import './css/share.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import QRious from 'qrious';
-import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
+// import tippy from 'tippy.js';
+// import 'tippy.js/dist/tippy.css';
 
 // import BScroll from '@better-scroll/core'
 // import MouseWheel from '@better-scroll/mouse-wheel'
@@ -54,6 +54,20 @@ export default function Gallery(props) {
         const data = await requestAlbums()
         if (Array.isArray(data)) setAlbums(data);
     }
+
+    //数据初始化
+    useEffect(() => {
+        let hash = window.location.hash
+        if (!hash) return;
+        hash = hash.substring(1);
+        const ids = hash.split("|");
+        //检查id是否都符合要求
+        if (ids.some(id => Number(id).toString() === 'NaN')) return;
+        //请求数据
+        requestImgs({ ids }).then(images => {
+            console.log(images);
+        })
+    }, [])
 
     //监听nav tab位置
     const onNavTabPosition = () => {
@@ -471,7 +485,7 @@ export default function Gallery(props) {
 
     const genShareLink = () => {
         const ids = collectImages.current.map(img => img.id)
-        const hashValue = "#collect=" + ids.join("-");
+        const hashValue = "#" + ids.join("|");
         return window.location.protocol + "//" + window.location.host + hashValue;
     }
     const copyState = useRef(false);
@@ -479,82 +493,103 @@ export default function Gallery(props) {
     const [collectNum, setCollectNum] = useState(collectImages.current.length);
     const shareRef = useRef(null);
     const closeRef = useRef(null);
-    const shareStatus = useRef(false);
     const qrcanvasRef = useRef(null);
+    const shareState = () => {
+        return shareRef.current.className.search("active") !== -1
+    }
     const onShare = () => {
-        setCollectNum(collectImages.current.length)
-        const link = genShareLink();
-
-        setShareLink(link)
-        if (shareStatus.current) {
+        if (shareState()) {
             shareRef.current.classList.remove("active")
             closeRef.current.classList.remove("active")
         } else {
+            setCollectNum(collectImages.current.length)
+            const link = genShareLink();
+            setShareLink(link)
+            genQR(link)
             shareRef.current.classList.add("active")
             closeRef.current.classList.add("active")
         }
-        shareStatus.current = !shareStatus.current
     }
 
     const copyRef = useRef(null);
-    const tippyRef = useRef(null);
-    const copyTips = () => {
-        tippyRef.current = tippy(copyRef.current, {
-            // default
-            content: '复制成功',
-            trigger: 'click',
-            placement: 'bottom',
-            animation: 'fade',
-            arrow: true,
-            theme: 'light',
-            delay: [0, 800], // ms
+    // const tippyRef = useRef(null);
+    // const copyTips = () => {
+    //     tippyRef.current = tippy(copyRef.current, {
+    //         // default
+    //         content: '复制成功',
+    //         trigger: 'click',
+    //         placement: 'bottom',
+    //         animation: 'fade',
+    //         arrow: true,
+    //         theme: 'light',
+    //         delay: [0, 800], // ms
+    //     });
+    // }
+
+    const qrRef = useRef(null)
+    // useEffect(() => {
+    //     if (!tippyRef.current) {
+    //         copyTips()
+    //     }
+
+    // }, [])
+
+    useEffect(() => {
+        if (!qrRef.current) {
+            genQR(shareLink);
+        }
+    }, [shareLink])
+
+    const genQR = (link) => {
+        qrRef.current = new QRious({
+            element: qrcanvasRef.current,
+            value: link
         });
     }
 
-    useEffect(() => {
-        if (!tippyRef.current) {
-            copyTips()
-        }
-    }, [])
+    let resetCopyTimer = null
+    const onCopy = () => {
+        resetCopyTimer && clearTimeout(resetCopyTimer);
+        copyRef.current.innerHTML = "成功复制链接";
+        copyRef.current.classList.add("copysuccess");
+        resetCopyTimer = setTimeout(() => {
+            copyRef.current.classList.remove("copysuccess");
+            copyRef.current.innerHTML = "复制分享链接";
+        }, 3000)
+    }
 
-    const qrRef = useRef(null);
     const shareTemplate = () => {
-        if (!qrRef.current && qrcanvasRef.current) {
-            qrRef.current = new QRious({
-                element: qrcanvasRef.current,
-                value: shareLink
-            });
-        }
+        if (albumId.current !== -1) return <></>;
 
         return (
-            <div className="share-content">
-                <div className="share" ref={shareRef}>
-                    <div className="toggle" onClick={onShare}><span>分享收藏</span></div>
-                    <button type="button" className="close" ref={closeRef} onClick={onShare}>
-                        <span className="bar"></span>
-                        <span className="bar"></span>
-                    </button>
-                    <div className="content">
-                        <div className="text">
-                            <ul>
-                                <li>收藏数量 <span>{collectNum}</span></li>
-                                <li></li>
-                            </ul>
+            <div className="share-container">
+                <div className="share-content">
+                    <div className="share" ref={shareRef}>
+                        <div className="toggle" onClick={onShare}><span>分享收藏</span></div>
+                        <button type="button" className="close" ref={closeRef} onClick={onShare}>
+                            <span className="bar"></span>
+                            <span className="bar"></span>
+                        </button>
+                        <div className="content">
+                            <div className="text">
+                                <ul>
+                                    <li>收藏数量 <span>{collectNum}</span></li>
+                                    <li></li>
+                                </ul>
 
-                            <div className="shareQR"><canvas ref={qrcanvasRef}></canvas></div>
-                            <p className="sharelink">{shareLink}</p>
-                            <CopyToClipboard text={shareLink}
-                                onCopy={() => copyState.current = true}>
-                                <span className="sharelinkBtn" ref={copyRef}>复制分享链接</span>
-                            </CopyToClipboard>
+                                <div className="shareQR"><canvas ref={qrcanvasRef} /></div>
+                                <p className="sharelink">{shareLink}</p>
+                                <CopyToClipboard text={shareLink}
+                                    onCopy={() => copyState.current = true}>
+                                    <span className="sharelinkBtn" ref={copyRef} onClick={onCopy}>复制分享链接</span>
+                                </CopyToClipboard>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         )
     }
-
-
 
     return (
         <section >
@@ -608,9 +643,7 @@ export default function Gallery(props) {
             <section ref={contentRef} className="contentContainer">
                 <div className="galleryContainer galleryBox gallery-wrapper" ref={galleryContainer}>
                     {/* <canvas className="background" /> */}
-                    <div className="share-container">
-                        {shareTemplate()}
-                    </div>
+                    {shareTemplate()}
                     <div className="gallery-content">
                         <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
                             {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}

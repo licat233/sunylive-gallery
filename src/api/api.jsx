@@ -67,3 +67,27 @@ export async function requestImages(req) {
         }
     }
 }
+
+export async function requestImgs(req){
+    if(!Array.isArray(req.ids)) throw new Error("req.ids不是数组");
+    const url = baseUrl() + "/api/v1/share/imgs";
+    const data = {
+        ids: req.ids
+    }
+    try {
+        const resp = await axios(url, { method: "post",data });
+        if (resp.status === 200) {
+            // console.log(resp)
+            if (resp.data.status) {
+                const images = resp.data.data.images;
+                if (images) return images;
+            }
+        }
+        throw new Error("加载图片失败，请稍后再重试！")
+    } catch (error) {
+        showError(error.message)
+        return {
+            data: []
+        }
+    }
+}
