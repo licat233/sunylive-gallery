@@ -48,7 +48,7 @@ export default function Footer() {
             <div className="footer-container">
                 <div className="footer-item">
                     <h6>关于/About</h6>
-                    <p className="text-justify">上宜居 <i> sunylive </i> 是一家专业设计定制生产意大利轻奢极简风格家具的高端全屋定制品牌，主要生产衣柜、护墙板、展柜、书柜、木门、玄关柜等家具，专注家居制造业12年，擅长将不锈钢与面板完美结合打造出优质家居产品，提供全屋定制、家具定做、预约量尺定制服务！</p>
+                    <p className="text-about">上宜居 <i> sunylive </i> 是一家专业设计定制生产意大利轻奢极简风格家具的高端全屋定制品牌，主要生产衣柜、护墙板、展柜、书柜、木门、玄关柜等家具，专注家居制造业12年，擅长将不锈钢与面板完美结合打造出优质家居产品，提供全屋定制、家具定做、预约量尺定制服务！</p>
                 </div>
 
                 <div className="footer-item">

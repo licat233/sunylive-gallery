@@ -177,9 +177,30 @@
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
 
-    /* align-items: start; */
+
+    -webkit-box-align: start;
+
+
+    -webkit-align-items: flex-start;
+
+
+       -moz-box-align: start;
+
+
+        -ms-flex-align: start;
+
+
+            align-items: flex-start;
     justify-items: center;
     grid-gap: 10px;
+}
+
+
+
+@media screen and (min-width: 768px) {
+    .footer-container .footer-item {
+        max-width: 50%;
+    }
 }
 
 /* disclaims */
@@ -593,3 +614,7 @@
     width: 100px;
     height: 100px;
 }
+
+/* .footer-item .text-about {
+
+} */
