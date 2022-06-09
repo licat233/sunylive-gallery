@@ -55,20 +55,66 @@ export default function Gallery(props) {
         if (Array.isArray(data)) setAlbums(data);
     }
 
-    //数据初始化
-    useEffect(() => {
+    /**
+     * 关于收藏栏的数据：
+     * 如果有hash，则优先加载hash的数据，并且首屏自动跳转到收藏栏目下
+     * 否则使用localStorage
+     */
+
+    const isHashData = useRef(false)
+    const getCollectImages = async () => {
         let hash = window.location.hash
-        if (!hash) return;
+        if (!hash) {
+            //加载localstorage数据
+            initCollectImages()
+            return
+        }
         hash = hash.substring(1);
         const arr = hash.split("|");
-        //检查id是否都符合要求
-        if (arr.some(id => Number(id).toString() === 'NaN')) return;
-        const ids = arr.map(id=>Number(id));
+        //如果没有数据
+        if (arr.length === 0) {
+            //加载localstorage数据
+            initCollectImages()
+            return
+        }
+        //检查id是否都符合要求，如果不符合
+        if (arr.some(id => Number(id).toString() === 'NaN')) {
+            //加载localstorage数据
+            initCollectImages()
+            return
+        }
+
+        //加载hash数据
+        isHashData.current = true;
+        const ids = arr.map(id => Number(id));
         //请求数据
-        requestImgs({ ids }).then(images => {
-            console.log(images);
-        })
-    }, [])
+        const images = await requestImgs({ ids })
+        if (Array.isArray(images)) {
+            collectImages.current = images;
+        }
+        //如果加载的是hash数据，则自动跳转到收藏栏目下
+        onMouseScroll()
+        // console.log(images);
+    }
+
+    //初始化收藏图片
+    const initCollectImages = () => {
+        if (!Array.isArray(localImages)) {
+            deleteLocalImages([]);
+            setLocalImages([]);
+        } else {
+            collectImages.current = [...localImages];
+        }
+    }
+
+    let collectDataStatus = useRef(false);
+    //数据初始化
+    useEffect(() => {
+        if (collectDataStatus.current) return;
+        collectDataStatus.current = true;
+        getCollectImages();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [collectDataStatus.current])
 
     //监听nav tab位置
     const onNavTabPosition = () => {
@@ -240,7 +286,7 @@ export default function Gallery(props) {
             collectImages.current.push(image);
         } else {
             btnE.innerHTML = "收藏";
-            btnE.style.color = ""
+            btnE.style.color = "";
             //移除
             const deleteIndex = collectImages.current.findIndex(img => {
                 return img.id === image.id
@@ -248,6 +294,12 @@ export default function Gallery(props) {
             if (deleteIndex !== -1) {
                 collectImages.current.splice(deleteIndex, 1)
             }
+        }
+
+        //如果加载的是hash数据，收藏或者取消收藏的时候，应该只是操作了hash数据，不能动到localstrage数据
+        //如果当前加载的是hash数据，则不应该把hash数据覆盖保存到本地
+        if (isHashData.current) {
+            return
         }
         //持久化到本地存储
         writeStorage('collectImages', collectImages.current);
@@ -358,21 +410,13 @@ export default function Gallery(props) {
         photoswipe.current.init();
     }
 
-    const initCollectImages = () => {
-        if (!Array.isArray(localImages)) {
-            deleteLocalImages([]);
-            setLocalImages([]);
-        } else {
-            collectImages.current = [...localImages];
-        }
-    }
-
     //渲染导航栏
     const renderNavTab = () => {
+        const filterAlbums = albums.filter(album => album.image_num !== 0);
         return <>
             <div className="nav-container" ref={navRef}>
                 <div className={albumId.current === -1 ? "nav-tab active" : "nav-tab"} data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
-                {albums.map((album, index) => {
+                {filterAlbums.map((album, index) => {
                     const name = albumId.current === album.id ? "nav-tab active" : "nav-tab";
                     return <div className={name} data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
                 })}
@@ -454,7 +498,7 @@ export default function Gallery(props) {
         initNavSize() //初始化nav大小
         initAlbums() //初始化相册
         initContentDisplay() //初始化内容区
-        initCollectImages() //初始化collectImages数据
+        // initCollectImages() //初始化collectImages数据
         initPhotoSwipe(); //初始化photoswipe
         window.addEventListener('resize', onResize); //监听窗口变化
         window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了

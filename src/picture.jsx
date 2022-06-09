@@ -35,7 +35,7 @@ export default function Picture(props) {
                     src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%201000%20500'%20%2F%3E"
                     data-src={thumb_url}
                     itemProp="thumbnail"
-                    alt="壁纸来源网络和网友分享，图片版权归原作者所有，若有侵权问题敬请告知我们（licat233@gmail.com），我们会尽快处理。"
+                    alt="部分图片来源网络和网友分享，图片版权归原作者所有，若有侵权问题敬请告知我们（licat233@gmail.com），我们会尽快处理。"
                 />
             </a>
             <figcaption className="gallery-caption" itemProp="caption description">SUNYLIVE</figcaption>
