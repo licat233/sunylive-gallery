@@ -7,7 +7,12 @@ import disableDevtool from 'disable-devtool';
 
 function isDev() {
   const nowHost = window.location.host;
-  if (!nowHost) return true;
+  if (nowHost.length === 0) return true;
+  let hash = window.location.hash;
+  //去除 #
+  hash = hash.substring(1);
+  const arr = hash.split("&");
+  if (arr.some((item) => item === "development")) return true;
   const index = nowHost.search(":");
   return index !== -1
 }

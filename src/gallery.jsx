@@ -70,15 +70,27 @@ export default function Gallery(props) {
             return
         }
         hash = hash.substring(1);
-        const arr = hash.split("|");
-        //如果没有数据
-        if (arr.length === 0) {
+        //例：share=[1,2,3]
+        const items = hash.split("&");
+        const pattern = /^share=\[(\d,?)+\]$/
+        let share = "";
+        for (let i = 0; i < items.length; i++) {
+            const str = items[i];
+            if (pattern.test(str)) {
+                share = str
+                break
+            }
+        }
+        if (share === "" || share.length < 8) {
             //加载localstorage数据
             initCollectImages()
             return
         }
+        //提取id
+        const idstr = share.slice(7, share.length - 1)
+        const idss = idstr.split(",");
         //检查id是否都符合要求，如果不符合
-        if (arr.some(id => Number(id).toString() === 'NaN')) {
+        if (idss.some(id => id.length === 0 || Number(id).toString() === 'NaN')) {
             //加载localstorage数据
             initCollectImages()
             return
@@ -86,15 +98,25 @@ export default function Gallery(props) {
 
         //加载hash数据
         isHashData.current = true;
-        const ids = arr.map(id => Number(id));
+        const ids = idss.map(id => Number(id));
         //请求数据
         const images = await requestImgs({ ids })
-        if (Array.isArray(images)) {
-            collectImages.current = images;
+        if (!Array.isArray(images)) {
+            const alertMsg = new window.AlertClass();
+            alertMsg.show({
+                title: '错误',
+                content: '加载错误，请刷新网页或者稍后重试!!',
+                onHide: function () {
+                }
+            })
+            return
         }
+        collectImages.current = images;
         //如果加载的是hash数据，则自动跳转到收藏栏目下
-        onMouseScroll()
-        // console.log(images);
+        toPhotoSwipe()
+        //展示图片
+        imageStorage.current = [...collectImages.current];
+        setImages([...imageStorage.current]);
     }
 
     //初始化收藏图片
@@ -246,6 +268,8 @@ export default function Gallery(props) {
 
     //加载更多图片
     const loadMoreImages = () => {
+        //如果是收藏栏，不需要加载更多
+        if (albumId.current === -1) return
         //滑动到底部，把最后一个标记一下
         //相较监听滚动条位置的最佳方案
         if (!last_picture.current) return //console.log("最后一个元素不存在");
@@ -530,7 +554,7 @@ export default function Gallery(props) {
 
     const genShareLink = () => {
         const ids = collectImages.current.map(img => img.id)
-        const hashValue = "#" + ids.join("|");
+        const hashValue = "#share=[" + ids.join(",") + "]";
         return window.location.protocol + "//" + window.location.host + hashValue;
     }
     const copyState = useRef(false);
