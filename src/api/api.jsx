@@ -13,12 +13,12 @@ function showError(msg) {
 
 function baseUrl() {
     const nowHost = window.location.host
-    if (!nowHost) return "https://www.sunylive.cc";
+    if (!nowHost) return "https://pic.sunylive.cn";
     const index = nowHost.search(":");
     if (index === -1) {
         return "";
     }
-    return "https://www.sunylive.cc";
+    return "https://pic.sunylive.cn";
 }
 
 //返回一个数组
