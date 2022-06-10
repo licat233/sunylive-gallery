@@ -68,14 +68,14 @@ export async function requestImages(req) {
     }
 }
 
-export async function requestImgs(req){
-    if(!Array.isArray(req.ids)) throw new Error("req.ids不是数组");
+export async function requestImgs(req) {
+    if (!Array.isArray(req.ids)) throw new Error("req.ids不是数组");
     const url = baseUrl() + "/api/v1/share/imgs";
     const data = {
         ids: req.ids
     }
     try {
-        const resp = await axios(url, { method: "post",data });
+        const resp = await axios(url, { method: "post", data });
         if (resp.status === 200) {
             // console.log(resp)
             if (resp.data.status) {
@@ -89,5 +89,21 @@ export async function requestImgs(req){
         return {
             data: []
         }
+    }
+}
+
+export async function authPhoneNumber(req) {
+    const url = baseUrl() + "/api/v1/share/albums";
+    try {
+        const resp = await axios.post(url, { phone_number: req.phone_number });
+        if (resp.status === 200) {
+            if (resp.data.status) {
+                console.log("验证通过")
+            }
+        }
+        throw new Error("加载相册失败，请稍后再重试！")
+    } catch (error) {
+        showError(error.message)
+        return []
     }
 }

@@ -3,7 +3,7 @@ import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
 import 'lazysizes';
 import { writeStorage, useLocalStorage } from '@rehooks/local-storage';
-import $ from 'jquery.scrollto';
+import scrollto from 'jquery.scrollto';
 import { requestImages, requestAlbums, requestImgs } from './api/api';
 import { initAlbumId, throttle, getElementTop, get_scrollTop_of_body, isReload, isElementInViewport, getContainer, getFullscreenAPI, fullscreenSVG } from './utils/utils';
 import Footer from './footer/footer';
@@ -159,7 +159,7 @@ export default function Gallery(props) {
         contentRef.current.style.display = "block";
         window.name = "sunylive";
         const targetScroll = getElementTop(galleryContainer.current) - navRef.current.offsetHeight
-        $(window).scrollTo(targetScroll, {
+        scrollto(window).scrollTo(targetScroll, {
             axis: 'y',
             duration: 400
         });

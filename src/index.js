@@ -4,6 +4,7 @@ import './css/index.css';
 import App from './App';
 import "./lib/popup";
 import disableDevtool from 'disable-devtool';
+// import { authPhoneNumber } from './api/api';
 
 function isDev() {
   const nowHost = window.location.host;
@@ -18,6 +19,16 @@ function isDev() {
 }
 
 isDev() || disableDevtool();
+
+// async function auth() {
+//   const layer = window.layer
+//   layer.prompt({ title: '请输入你的手机号码', formType: 0 }, async function (text, index) {
+//     await authPhoneNumber({ phone_number: text })
+//     layer.close(index);
+//   });
+// }
+
+// auth();
 
 // import reportWebVitals from './reportWebVitals';
 // import 'animate.css';
