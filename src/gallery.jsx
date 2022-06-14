@@ -519,11 +519,15 @@ export default function Gallery(props) {
     }
 
     useEffect(() => {
+        initPhotoSwipe(); //初始化photoswipe
+        // eslint-disable-next-line
+    }, [])
+
+    useEffect(() => {
         initNavSize() //初始化nav大小
         initAlbums() //初始化相册
         initContentDisplay() //初始化内容区
         // initCollectImages() //初始化collectImages数据
-        initPhotoSwipe(); //初始化photoswipe
         window.addEventListener('resize', onResize); //监听窗口变化
         window.addEventListener('scroll', onScroll);// 监听滚动条，注意：用了LocomotiveScroll，这里就不生效了
         return () => {
