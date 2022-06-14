@@ -143,7 +143,7 @@ html:not(.touchevents) .gallery-caption:after {
     transition-delay: 0.3s;
 }
 
-html:not(.touchevents) .visible.gallery-caption,
+/* html:not(.touchevents) .visible.gallery-caption,
 .gallery-item:hover .gallery-caption {
     color: white;
     text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
@@ -151,9 +151,9 @@ html:not(.touchevents) .visible.gallery-caption,
     -o-transition: all 0.3s ease 0.3s;
     -moz-transition: all 0.3s ease 0.3s;
     transition: all 0.3s ease 0.3s;
-}
+} */
 
-html:not(.touchevents) .visible.gallery-caption:before,
+/* html:not(.touchevents) .visible.gallery-caption:before,
 .gallery-item:hover .gallery-caption:before {
     -webkit-transform: scale(1, 1);
     -moz-transform: scale(1, 1);
@@ -164,16 +164,16 @@ html:not(.touchevents) .visible.gallery-caption:before,
     -moz-transition-delay: 0s;
     -o-transition-delay: 0s;
     transition-delay: 0s;
-}
+} */
 
-html:not(.touchevents) .visible.gallery-caption:after,
+/* html:not(.touchevents) .visible.gallery-caption:after,
 .gallery-item:hover .gallery-caption:after {
     -webkit-transform: scale(1, 1);
     -moz-transform: scale(1, 1);
     -ms-transform: scale(1, 1);
     -o-transform: scale(1, 1);
     transform: scale(1, 1);
-}
+} */
 
 html:not(.touchevents) .gallery-caption:empty {
     display: none;
@@ -236,7 +236,7 @@ html:not(.lazy-images) .gallery-item a:after {
     grid-template-rows: flow;
     grid-auto-flow: dense;
     overflow-y: auto;
-    gap: 4px;
+    /* gap: 4px; */
     /* max-height: 100vh; */
 }
 
