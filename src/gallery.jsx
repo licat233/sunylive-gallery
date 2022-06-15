@@ -441,11 +441,10 @@ export default function Gallery(props) {
 
     //渲染导航栏
     const renderNavTab = () => {
-        const filterAlbums = albums.filter(album => album.image_num !== 0);
         return <>
             <div className="nav-container" ref={navRef}>
                 <div className={albumId.current === -1 ? "nav-tab active" : "nav-tab"} data-id={-1} ref={collectRef} onClick={clickNav} key="collect">收藏</div>
-                {filterAlbums.map((album, index) => {
+                {albums.map((album, index) => {
                     const name = albumId.current === album.id ? "nav-tab active" : "nav-tab";
                     return <div className={name} data-id={album.id} onClick={clickNav} key={album.id + "-" + index}>{album.name}</div>
                 })}
@@ -669,6 +668,20 @@ export default function Gallery(props) {
         )
     }
 
+    let findFigureE = (ele)=>{
+        if(!ele) return null;
+        if(ele.tagName==='FIGURE') return ele;
+        return findFigureE(ele.parentElement);
+    }
+
+    let rightClickHandler = function(e){
+        e.preventDefault();
+        // 执行代码块
+       
+       let figure = findFigureE(e.target);
+       console.log(figure);
+    }
+
     return (
         <section >
             <div className="navigationContainer" ref={navigationContainer}>
@@ -723,7 +736,7 @@ export default function Gallery(props) {
                     {/* <canvas className="background" /> */}
                     {shareTemplate()}
                     <div className="gallery-content">
-                        <div ref={galleryRef} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
+                        <div ref={galleryRef} onContextMenu={rightClickHandler} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
                             {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
                         </div>
                     </div>

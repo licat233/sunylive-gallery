@@ -4,6 +4,15 @@ import 'lazysizes';
 export default function Picture(props) {
     const imgRef = useRef();
 
+    const figureRef = useRef();
+    // useEffect(() => {
+    //     figureRef.current.addEventListener('contextmenu', function (e) {
+    //         e.preventDefault();
+    //         // 执行代码块
+    //         console.log(this)
+    //     })
+    // }, [])
+
     useEffect(() => {
         if (props.isLast) {
             props.setLastPicture(imgRef.current)
@@ -20,7 +29,7 @@ export default function Picture(props) {
     const mark = width < height ? "vertical" : "horizontal";
 
     return <>
-        <figure className={"gallery-item " + mark} itemProp="associatedMedia" id={id} itemScope="" itemType="http://schema.org/ImageObject">
+        <figure ref={figureRef} className={"gallery-item " + mark} itemProp="associatedMedia" id={id} itemScope="" itemType="http://schema.org/ImageObject">
             <a href={url}
                 itemProp="contentUrl"
                 data-size={size}
