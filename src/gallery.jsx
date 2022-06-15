@@ -52,7 +52,10 @@ export default function Gallery(props) {
         if (hasAlbums.current) return;
         hasAlbums.current = true
         const data = await requestAlbums()
-        if (Array.isArray(data)) setAlbums(data);
+        if (Array.isArray(data)) {
+            let filterData = data.filter(item => item.image_num !== 0)
+            setAlbums(filterData)
+        };
     }
 
     /**
@@ -250,6 +253,8 @@ export default function Gallery(props) {
         const album_id = +e.target.dataset.id
         //如果是相同的相册，则不重复处理
         if (lastActiveTab.current === e.target) return// console.log("相同的相册");
+        //停止所有的请求，基本上都是图片请求
+        window.stop();
         //切换标签
         switchTab(e.target);
         //清空images
