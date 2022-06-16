@@ -51,6 +51,7 @@ export default function Gallery(props) {
     const initAlbums = async () => {
         if (hasAlbums.current) return;
         hasAlbums.current = true
+        window.loadAlbumEnd = false;
         const data = await requestAlbums()
         if (Array.isArray(data)) {
             let filterData = data.filter(item => item.image_num !== 0)

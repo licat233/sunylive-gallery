@@ -13,10 +13,19 @@ export default function Picture(props) {
     //     })
     // }, [])
 
+    const initStatus = useRef(false);
+    const aRef = useRef();
     useEffect(() => {
+        if (initStatus.current) return;
         if (props.isLast) {
             props.setLastPicture(imgRef.current)
         }
+        aRef.current.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+        imgRef.current.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -39,6 +48,7 @@ export default function Picture(props) {
                 data-cropped="true"
                 target="_blank"
                 rel="noreferrer"
+                ref={aRef}
             >
                 <img ref={imgRef} className="gallery-img lazyload fadein" width={width} height={height}
                     src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%201000%20500'%20%2F%3E"
