@@ -303,6 +303,41 @@ export default function Gallery(props) {
         }
     }
 
+    const hasCollectImage = (image_id) => {
+        image_id = +image_id //转化为 number 类型
+        const image = imageStorage.current.find((img => img.id === image_id))
+        if (!image) return null;
+        return collectImages.current.some(img => img.id === image.id);
+    }
+
+    const changeCollectImageHandler = (image_id, saveHandler, cancelHandelr) => {
+        image_id = +image_id //转化为 number 类型
+        const image = imageStorage.current.find((img => img.id === image_id))
+        if (!image) return;
+        const exist = collectImages.current.some(img => img.id === image.id);
+        //不存在，则保存
+        if (!exist) {
+            saveHandler();
+            collectImages.current.push(image);
+        } else {
+            cancelHandelr();
+            //移除
+            const deleteIndex = collectImages.current.findIndex(img => {
+                return img.id === image.id
+            })
+            if (deleteIndex !== -1) {
+                collectImages.current.splice(deleteIndex, 1)
+            }
+        }
+        //如果加载的是hash数据，收藏或者取消收藏的时候，应该只是操作了hash数据，不能动到localstrage数据
+        //如果当前加载的是hash数据，则不应该把hash数据覆盖保存到本地
+        if (isHashData.current) {
+            return
+        }
+        //持久化到本地存储
+        writeStorage('collectImages', collectImages.current);
+    }
+
     //改变收藏按钮样式
     const changeCollectBtnStyle = (btnE, currentIndex) => {
         const index = currentIndex ?? btnE.dataset.index;
@@ -509,6 +544,7 @@ export default function Gallery(props) {
     const onScroll = () => {
         onNavTabPosition();
         throttle(() => {
+            cancelMenuByScroll();
             loadMoreImages();
         })()
     }
@@ -668,22 +704,131 @@ export default function Gallery(props) {
         )
     }
 
-    let findFigureE = (ele)=>{
-        if(!ele) return null;
-        if(ele.tagName==='FIGURE') return ele;
+    const findFigureE = (ele) => {
+        if (!ele) return null;
+        if (ele.tagName === 'FIGURE') return ele;
+        if (ele.tagName !== 'A' && ele.tagName !== 'IMG') return null;
         return findFigureE(ele.parentElement);
     }
 
-    let rightClickHandler = function(e){
-        e.preventDefault();
-        // 执行代码块
-       
-       let figure = findFigureE(e.target);
-       console.log(figure);
+    const cancelRightMenuTimer = useRef(null)
+    const mouseoverHandler = (e) => {
+        // console.log("鼠标进入")
+        // console.log(e);
+        clearTimeout(cancelRightMenuTimer.current);
     }
 
+    const mouseoutHandler = (e) => {
+        // console.log("鼠标离开")
+        // console.log(e);
+        // 1 秒钟之后消失
+        clearTimeout(cancelRightMenuTimer.current);
+        cancelRightMenuTimer.current = setTimeout(() => {
+            cancelRightMenu()
+        }, 600)
+    }
+
+    const rightMenuRef = useRef();
+    const collectItemRef = useRef();
+    //隐藏菜单
+    const cancelRightMenu = () => {
+        rightMenuRef.current.style.display = 'none';
+    }
+
+    const markScrollTop = useRef(null);
+    const rightClickHandler = function (e) {
+        e = e || window.event;
+        //屏蔽默认样式
+        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+        //获取坐标
+        let x = e.clientX;
+        let y = e.clientY;
+
+        //获取屏幕大小
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        //右键菜单窗口的宽高
+        const menuWidth = 90;
+        const menuHeight = 30;
+
+        //计算视口的位置
+        if (screenWidth - x < menuWidth) {
+            x -= menuWidth;
+        }
+        if (screenHeight - y < menuHeight) {
+            y -= menuHeight;
+        }
+
+        //设置坐标
+        rightMenuRef.current.style.top = y + 'px';
+        rightMenuRef.current.style.left = x + 'px';
+
+        // 执行代码块
+        const figureE = findFigureE(e.target);
+        // console.log(figureE);
+        if (!figureE) return;
+        const image_id = figureE.dataset.id;
+        if (!image_id) return;
+        rightMenuRef.current.dataset.imageId = image_id;
+        //初始化样式
+        if (hasCollectImage(image_id)) {
+            saveMenuStyle();
+        } else {
+            cancelMenuStyle();
+        }
+        //标记当前 scrollTop
+        markScrollTop.current = document.documentElement.scrollTop || document.body.scrollTop;
+
+        //显示菜单
+        rightMenuRef.current.style.display = 'block';
+    }
+
+    //当滚动超过一定距离，菜单就会消失
+    const cancelMenuByScroll = () => {
+        if (markScrollTop.current === null) return;
+        const currentScrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        if (Math.abs(currentScrollTop - markScrollTop.current) > 150) {
+            cancelRightMenu();
+            markScrollTop.current = null;
+        }
+    }
+
+    const saveMenuStyle = () => {
+        collectItemRef.current.innerText = "取消收藏";
+        collectItemRef.current.style.color = "red";
+    }
+
+    const cancelMenuStyle = () => {
+        collectItemRef.current.innerText = "添加收藏";
+        collectItemRef.current.style.color = "";
+    }
+
+    const changeCollectImageByMenuHandler = () => {
+        const image_id = rightMenuRef.current.dataset.imageId;
+        if (!image_id) return console.log("丢失目标图片id");
+        changeCollectImageHandler(image_id, saveMenuStyle, cancelMenuStyle);
+    }
+
+    const initRightClickMenu = useRef(false);
+
+    useEffect(() => {
+        if (initRightClickMenu.current) return;
+        initRightClickMenu.current = true;
+        // window.document.addEventListener("click", () => {
+        //     //隐藏菜单
+        //     cancelRightMenu();
+        // });
+        let liEs = rightMenuRef.current.querySelectorAll("ul li");
+        liEs.forEach(li => {
+            li.onmouseover = mouseoverHandler
+            li.onmouseout = mouseoutHandler
+        })
+        // eslint-disable-next-line
+    }, [])
+
     return (
-        <section >
+        < >
             <div className="navigationContainer" ref={navigationContainer}>
                 <section id="nav" className="nav" ref={navBoxRef}>
                     <div className="ruler-box">
@@ -737,7 +882,7 @@ export default function Gallery(props) {
                     {shareTemplate()}
                     <div className="gallery-content">
                         <div ref={galleryRef} onContextMenu={rightClickHandler} className="gallery" id="gallery" itemScope="" itemType="http://schema.org/ImageGallery">
-                            {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
+                            {images.map((image, index) => <Picture key={albumId.current + "-" + index + "-" + image.id} index={index} image={image} isLast={images.length === index + 1} setLastPicture={setLastPicture} />)}
                         </div>
                     </div>
                     {loading()}
@@ -749,6 +894,11 @@ export default function Gallery(props) {
                     <div id="stars3"></div>
                 </div>
             </section>
-        </section>)
+            <section ref={rightMenuRef} className="rightclickmenu">
+                <ul>
+                    <li ref={collectItemRef} onClick={changeCollectImageByMenuHandler} className="collectItem">添加收藏</li>
+                </ul>
+            </section>
+        </>)
 }
 // 

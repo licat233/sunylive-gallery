@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 function showError(msg) {
+    if (msg === "Request aborted") return; //被终止的请求，不必报错提示
     const alertMsg = new window.AlertClass();
     alertMsg.show({
         title: '加载错误，请刷新网页或者稍后重试!!',

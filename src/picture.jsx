@@ -29,7 +29,7 @@ export default function Picture(props) {
     const mark = width < height ? "vertical" : "horizontal";
 
     return <>
-        <figure ref={figureRef} className={"gallery-item " + mark} itemProp="associatedMedia" id={id} itemScope="" itemType="http://schema.org/ImageObject">
+        <figure ref={figureRef} className={"gallery-item " + mark} itemProp="associatedMedia" data-index={props.index} data-id={id} itemScope="" itemType="http://schema.org/ImageObject">
             <a href={url}
                 itemProp="contentUrl"
                 data-size={size}

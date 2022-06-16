@@ -31,8 +31,8 @@
                 document.body.removeChild(loadingE);
             }
             let loadinghandle = () => {
-                if (window.name === "sunylive") return clearEvent();
-                window.name = "sunylive";
+                if (window.name === "sunylive" || window.name === "sunylive-loading") return clearEvent();
+                window.name = "sunylive-loading";
                 setTimeout(() => {
                     loadingE.classList.add("loading-over1");
                     setTimeout(() => {
@@ -46,7 +46,6 @@
             window.addEventListener("load", loadinghandle)
         })()
     </script>
-    
 </body>
 
 </html>
