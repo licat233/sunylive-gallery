@@ -10,42 +10,133 @@
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>SUNYLIVE GALLERY</title>
-    <link rel="stylesheet" href="/css/loading/loading.css">
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Quattrocento+Sans);
+
+        .webloading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+        }
+
+        .loading-text {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            text-align: center;
+            width: 100%;
+            height: 100px;
+            line-height: 100px;
+        }
+
+        .loading-text span {
+            display: inline-block;
+            margin: 0 5px;
+            color: #fff;
+            font-family: "Quattrocento Sans", sans-serif;
+        }
+
+        .loading-text span:nth-child(1) {
+            filter: blur(0px);
+            animation: blur-text 1.5s 0s infinite linear alternate;
+        }
+
+        .loading-text span:nth-child(2) {
+            filter: blur(0px);
+            animation: blur-text 1.5s 0.2s infinite linear alternate;
+        }
+
+        .loading-text span:nth-child(3) {
+            filter: blur(0px);
+            animation: blur-text 1.5s 0.4s infinite linear alternate;
+        }
+
+        .loading-text span:nth-child(4) {
+            filter: blur(0px);
+            animation: blur-text 1.5s 0.6s infinite linear alternate;
+        }
+
+        .loading-text span:nth-child(5) {
+            filter: blur(0px);
+            animation: blur-text 1.5s 0.8s infinite linear alternate;
+        }
+
+        .loading-text span:nth-child(6) {
+            filter: blur(0px);
+            animation: blur-text 1.5s 1s infinite linear alternate;
+        }
+
+        .loading-text span:nth-child(7) {
+            filter: blur(0px);
+            animation: blur-text 1.5s 1.2s infinite linear alternate;
+        }
+
+        @keyframes blur-text {
+            0% {
+                filter: blur(0px);
+            }
+
+            100% {
+                filter: blur(4px);
+            }
+        }
+
+        .loading-over {
+            transition: 2s all;
+            opacity: 0;
+        }
+    </style>
 </head>
 
 <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <section id="loading-backgound">
-        <div class='wrapper'>
- <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    <div class="webloading">
+        <div class="loading-text">
+            <span class="loading-text-words">L</span>
+            <span class="loading-text-words">O</span>
+            <span class="loading-text-words">A</span>
+            <span class="loading-text-words">D</span>
+            <span class="loading-text-words">I</span>
+            <span class="loading-text-words">N</span>
+            <span class="loading-text-words">G</span>
         </div>
-        <a href='#black' id='black'></a>
-    </section>
+    </div>
     <div id="root"></div>
     <script>
         (function () {
-            let loadingE = document.getElementById("loading-backgound");
-            let clearEvent = () => {
-                loadingE.style.display = "none";
-                window.removeEventListener("load", loadinghandle);
-                document.body.removeChild(loadingE);
-            }
             let loadinghandle = () => {
-                if (window.name === "sunylive" || window.name === "sunylive-loading") return clearEvent();
-                window.name = "sunylive-loading";
-                setTimeout(() => {
-                    loadingE.classList.add("loading-over1");
+                let loadingE = document.querySelector(".webloading");
+                let loadtimer = null;
+                let clearEvent = () => {
+                    loadingE.style.display = "none";
+                    window.removeEventListener("load", loadinghandle);
+                    document.body.removeChild(loadingE);
+                }
+                let overLoading = () => {
+                    loadingE.classList.add("loading-over");
                     setTimeout(() => {
-                        loadingE.classList.add("loading-over2");
-                        setTimeout(() => {
-                            clearEvent();
-                        }, 1800)
+                        clearEvent();
                     }, 2000)
-                });
+                }
+                loadtimer = setInterval(() => {
+                    if (window.loadAlbumEnd === true) {
+                        window.loadAlbumEnd = false;
+                        clearInterval(loadtimer);
+                        overLoading();
+                    }
+                }, 50);
             }
             window.addEventListener("load", loadinghandle)
         })()
     </script>
+    <script disable-devtool-auto url="about:blank" tkName="licat" detectors="-1 0 1 3 4 5" src='https://fastly.jsdelivr.net/npm/disable-devtool@latest/disable-devtool.min.js'></script>
 </body>
 
 </html>

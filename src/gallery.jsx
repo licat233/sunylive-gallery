@@ -56,6 +56,8 @@ export default function Gallery(props) {
             let filterData = data.filter(item => item.image_num !== 0)
             setAlbums(filterData)
         };
+        //初始化完成之后，标记一下
+        window.loadAlbumEnd = true;
     }
 
     /**
