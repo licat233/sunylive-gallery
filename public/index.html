@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>SUNYLIVE GALLERY</title>
-    <style>
+    <style id="loadingStyle">
         @import url(https://fonts.googleapis.com/css?family=Quattrocento+Sans);
 
         .webloading {
@@ -118,6 +118,11 @@
                     loadingE.style.display = "none";
                     window.removeEventListener("load", loadinghandle);
                     document.body.removeChild(loadingE);
+                    let loadingStyleE = document.querySelector("#loadingStyle");
+                    document.head.removeChild(loadingStyleE);
+                    loadingE = null;
+                    loadtimer = null;
+                    loadingStyleE = null;
                 }
                 let overLoading = () => {
                     loadingE.classList.add("loading-over");
