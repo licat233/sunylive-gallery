@@ -7,7 +7,7 @@ function showError(msg) {
         title: '加载错误，请刷新网页或者稍后重试!!',
         content: msg,
         onHide: function () {
-            showError(msg);
+            // showError(msg);
         }
     })
 }

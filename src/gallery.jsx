@@ -799,7 +799,7 @@ export default function Gallery(props) {
 
     const saveMenuStyle = () => {
         collectItemRef.current.innerText = "取消收藏";
-        collectItemRef.current.style.color = "red";
+        collectItemRef.current.style.color = "yellow";
     }
 
     const cancelMenuStyle = () => {
