@@ -86,7 +86,7 @@ export default function Footer() {
             <div className="copyright">
                 <p>本网站部分图片源于网络,若发现您的权利被侵害,请联系我们尽快处理，联系邮箱：licat233@gmail.com</p>
                 <p className="copyright-text">Copyright &copy; 2022 All Rights Reserved by SUNYLIVE-GALLERY.
-                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">黔ICP备20005208号-2</a>.
+                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2022069223号-1</a>.
                 </p>
             </div>
         </footer>
