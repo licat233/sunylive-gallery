@@ -632,3 +632,9 @@ button.pswp__button--test-button {
 .pswp__bullet--active {
     background: var(--color0);
 }
+
+.pswp__button--autoplay {
+    color: #fff;
+    width: 4em;
+    margin-left: 1em;
+}

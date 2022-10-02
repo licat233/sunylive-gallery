@@ -42,7 +42,7 @@ export async function requestAlbums() {
     }
 }
 
-//返回一个对象
+//请求相册里的图片，返回一个对象
 export async function requestImages(req) {
     const url = baseUrl() + "/api/v1/share/images";
     const params = {
@@ -69,6 +69,7 @@ export async function requestImages(req) {
     }
 }
 
+//请求收藏夹里的图片
 export async function requestImgs(req) {
     if (!Array.isArray(req.ids)) throw new Error("req.ids不是数组");
     const url = baseUrl() + "/api/v1/share/imgs";

@@ -306,6 +306,26 @@ export default function Gallery(props) {
         }
     }
 
+    //初始化自动播放按钮
+    // const initAutoplayBtn = (pswp, currentIndex, btnE) => {
+    //     const btnEl = btnE || pswp.element.querySelector(".pswp__button--autoplay");
+    //     const index = currentIndex ?? pswp.options.index;
+    //     btnEl.dataset.index = index;
+    //     const image = imageStorage.current[index];
+    //     if (!image) return;
+
+    //     const exist = collectImages.current.some(img => img.id === image.id);
+    //     if (exist) {
+    //         btnEl.innerHTML = "停止播放";
+    //         btnEl.style.color = "var(--color0a)"
+    //     } else {
+    //         btnEl.innerHTML = "自动播放";
+    //         btnEl.style.color = "";
+    //     }
+    // }
+
+
+
     const hasCollectImage = (image_id) => {
         image_id = +image_id //转化为 number 类型
         const image = imageStorage.current.find((img => img.id === image_id))
@@ -372,6 +392,34 @@ export default function Gallery(props) {
         writeStorage('collectImages', collectImages.current);
     }
 
+    //自动播放按钮点击事件
+    const autoplayStatus = useRef(false);
+    const autoplayTimer = useRef(null);
+    const autoplayHandler = () => {
+        const pswp = photoswipe.current.pswp;
+        if (autoplayTimer.current) return console.log("计时器已初始化")
+        autoplayTimer.current = setInterval(() => {
+            if (!autoplayStatus.current) {
+                clearInterval(autoplayTimer.current)
+                autoplayTimer.current = null;
+                return
+            }
+            pswp.next();
+        }, 2000);
+    }
+    const changeAutoplayBtnStyle = (btnE) => {
+        if (autoplayStatus.current) {
+            autoplayStatus.current = false
+            // console.log("停止播放")
+            btnE.innerHTML="开始播放"
+        } else {
+            autoplayStatus.current = true
+            // console.log("开始播放")
+            autoplayHandler()
+            btnE.innerHTML="停止播放"
+        }
+    }
+
     const initPhotoSwipe = () => {
         if (photoswipe.current) return;
         const fullscreenAPI = getFullscreenAPI();
@@ -402,6 +450,8 @@ export default function Gallery(props) {
         const options = {
             gallery: '#gallery',
             children: 'figure',
+            imageClickAction: 'next',
+            tapAction: 'next',
             pswpModule: () => import('photoswipe'),
         };
 
@@ -416,8 +466,23 @@ export default function Gallery(props) {
             if (fullscreenAPI && fullscreenAPI.isFullscreen()) {
                 fullscreenAPI.exit();
             }
+            autoplayStatus.current = false;
         });
         photoswipe.current.on('uiRegister', function () {
+            //自动播放按钮
+            photoswipe.current.pswp.ui.registerElement({
+                name: 'autoplay',
+                ariaLabel: 'Toggle zoom',
+                order: 6,
+                isButton: true,
+                html: '自动播放',
+                onInit: function (el, pswp) {
+                    el.innerHTML = autoplayStatus.current? "停止播放":"开始播放";
+                },
+                onClick: (event, el) => {
+                    changeAutoplayBtnStyle(el);
+                }
+            });
             //收藏按钮
             photoswipe.current.pswp.ui.registerElement({
                 name: 'collect',
