@@ -1,3 +1,10 @@
+/*
+ * @Author: licat
+ * @Date: 2022-09-30 23:21:35
+ * @LastEditors: licat
+ * @LastEditTime: 2023-01-10 13:59:52
+ * @Description: licat233@gmail.com
+ */
 import { useEffect } from 'react';
 import "./footer.css";
 import $ from 'jquery.scrollto';
@@ -54,7 +61,7 @@ export default function Footer() {
                 <div className="footer-item">
                     <h6>商城/Mall</h6>
                     <ul className="footer-links">
-                        <li><a href="https://shop352785864.taobao.com" target="_blank" rel="noreferrer">官方宝店铺</a></li>
+                        <li><a href="https://shop352785864.taobao.com" target="_blank" rel="noreferrer">官方淘宝店铺</a></li>
                         <li><a href="https://sf178178.1688.com" target="_blank" rel="noreferrer">官方1688店铺</a></li>
                         <li><span data-tips target="_blank" rel="noreferrer">官方抖音店铺</span></li>
                         <li><span data-tips target="_blank" rel="noreferrer">官方小红书店铺</span></li>
